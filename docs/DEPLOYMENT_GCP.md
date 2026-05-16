@@ -5,7 +5,13 @@ This project deploys to Google Cloud Run with two services:
 - Production: `main` branch -> `parish-simulator`
 - Testing: `testing` branch -> `parish-simulator-testing`
 
-Cloud Run provides the free public `run.app` URL after each service is first deployed.
+Use the production Cloud Run URL as the single public entry point:
+
+```text
+https://parish-simulator-871930190013.us-central1.run.app
+```
+
+Players choose Production or Testing from that first screen. The testing service has a separate Cloud Run URL because it runs a separate backend, but players should not need to know it.
 
 ## One-Time GCP Setup
 
@@ -58,7 +64,7 @@ Update both Cloud Build triggers with:
 - `_PRODUCTION_URL=<production run.app URL>`
 - `_TESTING_URL=<testing run.app URL>`
 
-Then run both triggers again. The app's first screen will let players choose Production or Testing.
+Then run both triggers again. The app's first screen on the production URL will let players choose Production or Testing.
 
 ## Notes
 

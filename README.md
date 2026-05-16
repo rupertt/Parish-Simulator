@@ -127,4 +127,12 @@ The project is prepared for Google Cloud Run with two branches:
 - `main` deploys the production service.
 - `testing` deploys the testing service.
 
+Share this single public entry URL with players:
+
+```text
+https://parish-simulator-871930190013.us-central1.run.app
+```
+
+When players open that URL, they can choose Production or Testing before joining. The testing service has its own Cloud Run URL behind the scenes, but the production URL is the one to share.
+
 See [docs/DEPLOYMENT_GCP.md](docs/DEPLOYMENT_GCP.md) for the Cloud Run and Cloud Build setup.
