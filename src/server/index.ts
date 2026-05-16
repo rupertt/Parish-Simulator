@@ -6,17 +6,111 @@ import { fileURLToPath } from 'node:url';
 import { WebSocketServer, type WebSocket } from 'ws';
 
 const PORT = Number(process.env.PORT) || 3000;
-const ROOM_WIDTH = 768;
-const ROOM_HEIGHT = 432;
+const ROOM_WIDTH = 1254;
+const ROOM_HEIGHT = 1254;
 const PLAYER_SIZE = 16;
 const PLAYER_SPEED = 92;
 const SPAWN_SPACING_X = 72;
-const SPAWN_SPACING_Y = 40;
+const SPAWN_SPACING_Y = 56;
 const SIMULATION_RATE_MS = 1000 / 30;
 const STATE_BROADCAST_RATE_MS = 1000 / 15;
 const SHARED_ROOM = 'main';
+const MAP_BLOCKERS: Rect[] = [
+  { x: 252, y: 86, width: 150, height: 133 },
+  { x: 468, y: 35, width: 186, height: 160 },
+  { x: 718, y: 97, width: 126, height: 142 },
+  { x: 976, y: 96, width: 158, height: 140 },
+  { x: 210, y: 330, width: 164, height: 124 },
+  { x: 915, y: 294, width: 222, height: 166 },
+  { x: 50, y: 560, width: 156, height: 150 },
+  { x: 260, y: 552, width: 126, height: 126 },
+  { x: 552, y: 306, width: 168, height: 304 },
+  { x: 924, y: 512, width: 188, height: 170 },
+  { x: 282, y: 775, width: 178, height: 160 },
+  { x: 792, y: 772, width: 158, height: 148 },
+  { x: 1020, y: 773, width: 160, height: 152 },
+  { x: 1000, y: 985, width: 178, height: 168 },
+  { x: 0, y: 0, width: 70, height: 110 },
+  { x: 128, y: 62, width: 70, height: 100 },
+  { x: 216, y: 12, width: 64, height: 100 },
+  { x: 310, y: 0, width: 70, height: 100 },
+  { x: 662, y: 0, width: 72, height: 110 },
+  { x: 958, y: 0, width: 78, height: 112 },
+  { x: 1052, y: 20, width: 74, height: 112 },
+  { x: 1140, y: 60, width: 72, height: 108 },
+  { x: 0, y: 190, width: 78, height: 118 },
+  { x: 1200, y: 175, width: 54, height: 112 },
+  { x: 456, y: 330, width: 64, height: 118 },
+  { x: 748, y: 336, width: 62, height: 112 },
+  { x: 810, y: 318, width: 72, height: 120 },
+  { x: 1180, y: 326, width: 74, height: 110 },
+  { x: 0, y: 468, width: 82, height: 108 },
+  { x: 1188, y: 535, width: 66, height: 112 },
+  { x: 1185, y: 745, width: 69, height: 120 },
+  { x: 10, y: 770, width: 68, height: 112 },
+  { x: 92, y: 784, width: 66, height: 106 },
+  { x: 154, y: 780, width: 62, height: 110 },
+  { x: 790, y: 640, width: 62, height: 110 },
+  { x: 970, y: 980, width: 70, height: 112 },
+  { x: 396, y: 1010, width: 68, height: 105 },
+  { x: 502, y: 1000, width: 72, height: 118 },
+  { x: 650, y: 1080, width: 70, height: 118 },
+  { x: 870, y: 1090, width: 70, height: 118 },
+  { x: 1180, y: 1042, width: 74, height: 110 },
+  { x: 20, y: 323, width: 150, height: 20 },
+  { x: 20, y: 450, width: 150, height: 20 },
+  { x: 20, y: 323, width: 18, height: 148 },
+  { x: 154, y: 323, width: 18, height: 148 },
+  { x: 198, y: 128, width: 55, height: 20 },
+  { x: 198, y: 145, width: 18, height: 138 },
+  { x: 244, y: 262, width: 39, height: 20 },
+  { x: 348, y: 262, width: 100, height: 20 },
+  { x: 406, y: 128, width: 44, height: 20 },
+  { x: 430, y: 140, width: 20, height: 122 },
+  { x: 462, y: 191, width: 86, height: 20 },
+  { x: 688, y: 126, width: 18, height: 160 },
+  { x: 838, y: 128, width: 18, height: 160 },
+  { x: 820, y: 262, width: 50, height: 28 },
+  { x: 930, y: 128, width: 18, height: 152 },
+  { x: 1130, y: 128, width: 18, height: 152 },
+  { x: 948, y: 263, width: 50, height: 20 },
+  { x: 1085, y: 263, width: 54, height: 20 },
+  { x: 435, y: 480, width: 22, height: 142 },
+  { x: 538, y: 572, width: 88, height: 42 },
+  { x: 650, y: 596, width: 74, height: 28 },
+  { x: 800, y: 480, width: 26, height: 160 },
+  { x: 280, y: 692, width: 96, height: 22 },
+  { x: 50, y: 586, width: 18, height: 128 },
+  { x: 204, y: 586, width: 18, height: 128 },
+  { x: 258, y: 692, width: 130, height: 22 },
+  { x: 520, y: 665, width: 42, height: 26 },
+  { x: 650, y: 665, width: 82, height: 32 },
+  { x: 520, y: 820, width: 210, height: 90 },
+  { x: 778, y: 790, width: 18, height: 132 },
+  { x: 946, y: 790, width: 18, height: 132 },
+  { x: 796, y: 912, width: 150, height: 20 },
+  { x: 1000, y: 792, width: 18, height: 134 },
+  { x: 1178, y: 792, width: 18, height: 134 },
+  { x: 1020, y: 914, width: 160, height: 20 },
+  { x: 688, y: 1002, width: 212, height: 24 },
+  { x: 688, y: 1000, width: 18, height: 196 },
+  { x: 898, y: 1000, width: 18, height: 196 },
+  { x: 760, y: 1130, width: 70, height: 46 },
+  { x: 960, y: 1032, width: 42, height: 180 },
+  { x: 1176, y: 1032, width: 18, height: 180 },
+  { x: 1000, y: 1160, width: 176, height: 20 },
+  { x: 0, y: 922, width: 270, height: 64 },
+  { x: 0, y: 978, width: 220, height: 276 },
+  { x: 206, y: 1048, width: 70, height: 160 }
+];
 
 type Direction = 'down' | 'up' | 'left' | 'right';
+type Rect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 type CharacterId =
   | 'char_01'
   | 'char_02'
@@ -174,6 +268,29 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
+function isBlockedPosition(x: number, y: number): boolean {
+  const radius = PLAYER_SIZE / 2;
+  return MAP_BLOCKERS.some(
+    (rect) =>
+      x >= rect.x - radius &&
+      x <= rect.x + rect.width + radius &&
+      y >= rect.y - radius &&
+      y <= rect.y + rect.height + radius
+  );
+}
+
+function moveWithCollision(player: Player, input: PlayerInput, deltaSeconds: number): void {
+  const nextX = clamp(player.x + input.x * PLAYER_SPEED * deltaSeconds, PLAYER_SIZE, ROOM_WIDTH - PLAYER_SIZE);
+  if (!isBlockedPosition(nextX, player.y)) {
+    player.x = nextX;
+  }
+
+  const nextY = clamp(player.y + input.y * PLAYER_SPEED * deltaSeconds, PLAYER_SIZE, ROOM_HEIGHT - PLAYER_SIZE);
+  if (!isBlockedPosition(player.x, nextY)) {
+    player.y = nextY;
+  }
+}
+
 function normalizeInput(input: Partial<PlayerInput> | undefined): PlayerInput {
   const x = Number.isFinite(input?.x) ? clamp(Number(input?.x), -1, 1) : 0;
   const y = Number.isFinite(input?.y) ? clamp(Number(input?.y), -1, 1) : 0;
@@ -194,8 +311,8 @@ function createPlayer(id: string, name: string, characterId: CharacterId): Playe
     room: SHARED_ROOM,
     name,
     characterId,
-    x: 160 + (roomCount % 5) * SPAWN_SPACING_X,
-    y: 216 + Math.floor(roomCount / 5) * SPAWN_SPACING_Y,
+    x: 420 + (roomCount % 5) * SPAWN_SPACING_X,
+    y: 650 + Math.floor(roomCount / 5) * SPAWN_SPACING_Y,
     color: characters[characterId].color,
     facing: 'down',
     moving: false
@@ -292,8 +409,7 @@ setInterval(() => {
     const { player, input } = client;
     player.facing = input.facing ?? player.facing;
     player.moving = input.x !== 0 || input.y !== 0;
-    player.x = clamp(player.x + input.x * PLAYER_SPEED * deltaSeconds, PLAYER_SIZE, ROOM_WIDTH - PLAYER_SIZE);
-    player.y = clamp(player.y + input.y * PLAYER_SPEED * deltaSeconds, PLAYER_SIZE, ROOM_HEIGHT - PLAYER_SIZE);
+    moveWithCollision(player, input, deltaSeconds);
   }
 }, SIMULATION_RATE_MS);
 
