@@ -27,7 +27,8 @@ function getServerUrl(): string {
 
 export function configureSocket(profile: PlayerProfile): GameSocket {
   socket = io(getServerUrl(), {
-    auth: profile
+    auth: profile,
+    transports: ['websocket']
   });
 
   return socket;

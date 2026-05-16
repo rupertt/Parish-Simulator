@@ -6,6 +6,7 @@ const ROOM_WIDTH = 800;
 const ROOM_HEIGHT = 600;
 const PLAYER_SIZE = 24;
 const PLAYER_SPEED = 180;
+const MOVE_SEND_INTERVAL_MS = 1000 / 30;
 
 type PlayerSprite = {
   body: Phaser.GameObjects.Rectangle;
@@ -20,6 +21,7 @@ export class GameScene extends Phaser.Scene {
   private localPlayerId = '';
   private localPosition = new Phaser.Math.Vector2(ROOM_WIDTH / 2, ROOM_HEIGHT / 2);
   private lastSentPosition = new Phaser.Math.Vector2(-1, -1);
+  private moveSendElapsed = 0;
 
   constructor() {
     super('GameScene');
@@ -104,8 +106,13 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.movePlayerSprite(this.localPlayerId, this.localPosition.x, this.localPosition.y);
+    this.moveSendElapsed += delta;
 
-    if (Phaser.Math.Distance.BetweenPoints(this.localPosition, this.lastSentPosition) >= 1) {
+    if (
+      this.moveSendElapsed >= MOVE_SEND_INTERVAL_MS ||
+      Phaser.Math.Distance.BetweenPoints(this.localPosition, this.lastSentPosition) >= PLAYER_SIZE / 2
+    ) {
+      this.moveSendElapsed = 0;
       this.lastSentPosition.copy(this.localPosition);
       this.socket?.emit('player:move', {
         x: this.localPosition.x,
