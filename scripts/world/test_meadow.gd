@@ -4,96 +4,91 @@ const MAP_WIDTH := 1254
 const MAP_HEIGHT := 1254
 
 const REMOTE_PLAYER_SCENE := preload("res://scenes/player/RemotePlayer.tscn")
-const MAP_BLOCKERS := [
-	# Buildings
-	Rect2(252, 86, 150, 133),
-	Rect2(468, 35, 186, 160),
-	Rect2(718, 97, 126, 142),
-	Rect2(976, 96, 158, 140),
-	Rect2(210, 330, 164, 124),
-	Rect2(915, 294, 222, 166),
-	Rect2(50, 560, 156, 150),
-	Rect2(260, 552, 126, 126),
-	Rect2(552, 306, 168, 304),
-	Rect2(924, 512, 188, 170),
-	Rect2(282, 775, 178, 160),
-	Rect2(792, 772, 158, 148),
-	Rect2(1020, 773, 160, 152),
-	Rect2(1000, 985, 178, 168),
-	# Large tree trunks and crowns
-	Rect2(0, 0, 70, 110),
-	Rect2(128, 62, 70, 100),
-	Rect2(216, 12, 64, 100),
-	Rect2(310, 0, 70, 100),
-	Rect2(662, 0, 72, 110),
-	Rect2(958, 0, 78, 112),
-	Rect2(1052, 20, 74, 112),
-	Rect2(1140, 60, 72, 108),
-	Rect2(0, 190, 78, 118),
-	Rect2(1200, 175, 54, 112),
-	Rect2(456, 330, 64, 118),
-	Rect2(748, 336, 62, 112),
-	Rect2(810, 318, 72, 120),
-	Rect2(1180, 326, 74, 110),
-	Rect2(0, 468, 82, 108),
-	Rect2(1188, 535, 66, 112),
-	Rect2(1185, 745, 69, 120),
-	Rect2(10, 770, 68, 112),
-	Rect2(92, 784, 66, 106),
-	Rect2(154, 780, 62, 110),
-	Rect2(790, 640, 62, 110),
-	Rect2(970, 980, 70, 112),
-	Rect2(396, 1010, 68, 105),
-	Rect2(502, 1000, 72, 118),
-	Rect2(650, 1080, 70, 118),
-	Rect2(870, 1090, 70, 118),
-	Rect2(1180, 1042, 74, 110),
-	# Hedges, bushes, fences, gates, gardens, and small obstacles
-	Rect2(20, 323, 150, 20),
-	Rect2(20, 450, 150, 20),
-	Rect2(20, 323, 18, 148),
-	Rect2(154, 323, 18, 148),
-	Rect2(198, 128, 55, 20),
-	Rect2(198, 145, 18, 138),
-	Rect2(244, 262, 39, 20),
-	Rect2(348, 262, 100, 20),
-	Rect2(406, 128, 44, 20),
-	Rect2(430, 140, 20, 122),
-	Rect2(462, 191, 86, 20),
-	Rect2(688, 126, 18, 160),
-	Rect2(838, 128, 18, 160),
-	Rect2(820, 262, 50, 28),
-	Rect2(930, 128, 18, 152),
-	Rect2(1130, 128, 18, 152),
-	Rect2(948, 263, 50, 20),
-	Rect2(1085, 263, 54, 20),
-	Rect2(435, 480, 22, 142),
-	Rect2(538, 572, 88, 42),
-	Rect2(650, 596, 74, 28),
-	Rect2(800, 480, 26, 160),
-	Rect2(280, 692, 96, 22),
-	Rect2(50, 586, 18, 128),
-	Rect2(204, 586, 18, 128),
-	Rect2(258, 692, 130, 22),
-	Rect2(520, 665, 42, 26),
-	Rect2(650, 665, 82, 32),
-	Rect2(520, 820, 210, 90),
-	Rect2(778, 790, 18, 132),
-	Rect2(946, 790, 18, 132),
-	Rect2(796, 912, 150, 20),
-	Rect2(1000, 792, 18, 134),
-	Rect2(1178, 792, 18, 134),
-	Rect2(1020, 914, 160, 20),
-	Rect2(688, 1002, 212, 24),
-	Rect2(688, 1000, 18, 196),
-	Rect2(898, 1000, 18, 196),
-	Rect2(760, 1130, 70, 46),
-	Rect2(960, 1032, 42, 180),
-	Rect2(1176, 1032, 18, 180),
-	Rect2(1000, 1160, 176, 20),
-	Rect2(0, 922, 270, 64),
-	Rect2(0, 978, 220, 276),
-	Rect2(206, 1048, 70, 160)
+const MAP_COLLISION_SHAPES := [
+	# Building walls only. Roofs and overhangs remain visual foreground.
+	{ "kind": "polygon", "points": [Vector2(96, 118), Vector2(208, 118), Vector2(208, 184), Vector2(190, 200), Vector2(112, 200), Vector2(96, 184)] },
+	{ "kind": "polygon", "points": [Vector2(286, 120), Vector2(390, 120), Vector2(390, 188), Vector2(374, 204), Vector2(302, 204), Vector2(286, 188)] },
+	{ "kind": "polygon", "points": [Vector2(486, 122), Vector2(604, 122), Vector2(604, 188), Vector2(586, 204), Vector2(504, 204), Vector2(486, 188)] },
+	{ "kind": "polygon", "points": [Vector2(686, 126), Vector2(796, 126), Vector2(796, 192), Vector2(778, 208), Vector2(704, 208), Vector2(686, 192)] },
+	{ "kind": "polygon", "points": [Vector2(900, 126), Vector2(1028, 126), Vector2(1028, 200), Vector2(1008, 218), Vector2(920, 218), Vector2(900, 200)] },
+	{ "kind": "polygon", "points": [Vector2(1086, 122), Vector2(1202, 122), Vector2(1202, 194), Vector2(1184, 210), Vector2(1104, 210), Vector2(1086, 194)] },
+	{ "kind": "polygon", "points": [Vector2(192, 344), Vector2(386, 344), Vector2(386, 420), Vector2(362, 442), Vector2(216, 442), Vector2(192, 420)] },
+	{ "kind": "polygon", "points": [Vector2(900, 360), Vector2(1122, 360), Vector2(1122, 458), Vector2(1096, 480), Vector2(926, 480), Vector2(900, 458)] },
+	{ "kind": "polygon", "points": [Vector2(560, 350), Vector2(714, 350), Vector2(714, 542), Vector2(692, 568), Vector2(582, 568), Vector2(560, 542)] },
+	{ "kind": "polygon", "points": [Vector2(250, 562), Vector2(412, 562), Vector2(412, 650), Vector2(388, 672), Vector2(274, 672), Vector2(250, 650)] },
+	{ "kind": "polygon", "points": [Vector2(46, 648), Vector2(190, 648), Vector2(190, 732), Vector2(168, 752), Vector2(68, 752), Vector2(46, 732)] },
+	{ "kind": "polygon", "points": [Vector2(1044, 578), Vector2(1178, 578), Vector2(1178, 662), Vector2(1160, 680), Vector2(1062, 680), Vector2(1044, 662)] },
+	{ "kind": "polygon", "points": [Vector2(292, 790), Vector2(426, 790), Vector2(426, 872), Vector2(406, 890), Vector2(312, 890), Vector2(292, 872)] },
+	{ "kind": "polygon", "points": [Vector2(1114, 796), Vector2(1244, 796), Vector2(1244, 878), Vector2(1226, 896), Vector2(1132, 896), Vector2(1114, 878)] },
+	{ "kind": "polygon", "points": [Vector2(400, 1050), Vector2(520, 1050), Vector2(520, 1132), Vector2(500, 1150), Vector2(420, 1150), Vector2(400, 1132)] },
+	{ "kind": "polygon", "points": [Vector2(592, 1050), Vector2(722, 1050), Vector2(722, 1132), Vector2(702, 1150), Vector2(612, 1150), Vector2(592, 1132)] },
+	{ "kind": "polygon", "points": [Vector2(796, 1048), Vector2(928, 1048), Vector2(928, 1130), Vector2(908, 1148), Vector2(816, 1148), Vector2(796, 1130)] },
+	{ "kind": "polygon", "points": [Vector2(1040, 1050), Vector2(1184, 1050), Vector2(1184, 1134), Vector2(1162, 1152), Vector2(1062, 1152), Vector2(1040, 1134)] },
+	# Tree trunks, rocks, wells, graves, and bushes use tight rounded footprints.
+	{ "kind": "circle", "position": Vector2(28, 78), "radius": 15 },
+	{ "kind": "circle", "position": Vector2(125, 34), "radius": 14 },
+	{ "kind": "circle", "position": Vector2(224, 34), "radius": 14 },
+	{ "kind": "circle", "position": Vector2(348, 34), "radius": 15 },
+	{ "kind": "circle", "position": Vector2(492, 42), "radius": 14 },
+	{ "kind": "circle", "position": Vector2(594, 48), "radius": 14 },
+	{ "kind": "circle", "position": Vector2(772, 36), "radius": 15 },
+	{ "kind": "circle", "position": Vector2(968, 36), "radius": 15 },
+	{ "kind": "circle", "position": Vector2(1124, 36), "radius": 15 },
+	{ "kind": "circle", "position": Vector2(1225, 72), "radius": 16 },
+	{ "kind": "circle", "position": Vector2(30, 185), "radius": 15 },
+	{ "kind": "circle", "position": Vector2(1226, 240), "radius": 16 },
+	{ "kind": "circle", "position": Vector2(30, 380), "radius": 16 },
+	{ "kind": "circle", "position": Vector2(1222, 430), "radius": 16 },
+	{ "kind": "circle", "position": Vector2(1222, 628), "radius": 16 },
+	{ "kind": "circle", "position": Vector2(38, 850), "radius": 16 },
+	{ "kind": "circle", "position": Vector2(36, 1140), "radius": 16 },
+	{ "kind": "circle", "position": Vector2(146, 1210), "radius": 15 },
+	{ "kind": "circle", "position": Vector2(288, 1210), "radius": 15 },
+	{ "kind": "circle", "position": Vector2(510, 1210), "radius": 15 },
+	{ "kind": "circle", "position": Vector2(718, 1210), "radius": 15 },
+	{ "kind": "circle", "position": Vector2(908, 1210), "radius": 15 },
+	{ "kind": "circle", "position": Vector2(1148, 1210), "radius": 16 },
+	{ "kind": "circle", "position": Vector2(633, 778), "radius": 28 },
+	{ "kind": "circle", "position": Vector2(632, 826), "radius": 20 },
+	{ "kind": "circle", "position": Vector2(820, 764), "radius": 12 },
+	{ "kind": "circle", "position": Vector2(890, 764), "radius": 12 },
+	{ "kind": "circle", "position": Vector2(942, 820), "radius": 12 },
+	{ "kind": "circle", "position": Vector2(828, 850), "radius": 12 },
+	{ "kind": "circle", "position": Vector2(912, 866), "radius": 12 },
+	{ "kind": "circle", "position": Vector2(226, 520), "radius": 12 },
+	{ "kind": "circle", "position": Vector2(1180, 92), "radius": 11 },
+	{ "kind": "circle", "position": Vector2(1168, 415), "radius": 12 },
+	# Fences and hedges are thin capsules instead of large rectangles.
+	{ "kind": "capsule", "from": Vector2(72, 76), "to": Vector2(238, 76), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(74, 184), "to": Vector2(232, 184), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(274, 76), "to": Vector2(416, 76), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(274, 184), "to": Vector2(416, 184), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(476, 76), "to": Vector2(626, 76), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(476, 184), "to": Vector2(626, 184), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(672, 76), "to": Vector2(822, 76), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(672, 184), "to": Vector2(822, 184), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(886, 76), "to": Vector2(1048, 76), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(886, 184), "to": Vector2(1048, 184), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(1070, 76), "to": Vector2(1230, 76), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(1070, 184), "to": Vector2(1230, 184), "radius": 5 },
+	{ "kind": "capsule", "from": Vector2(460, 304), "to": Vector2(460, 570), "radius": 8 },
+	{ "kind": "capsule", "from": Vector2(796, 304), "to": Vector2(796, 586), "radius": 8 },
+	{ "kind": "capsule", "from": Vector2(530, 296), "to": Vector2(530, 445), "radius": 9 },
+	{ "kind": "capsule", "from": Vector2(746, 296), "to": Vector2(746, 455), "radius": 9 },
+	{ "kind": "capsule", "from": Vector2(56, 462), "to": Vector2(202, 462), "radius": 6 },
+	{ "kind": "capsule", "from": Vector2(56, 560), "to": Vector2(202, 560), "radius": 6 },
+	{ "kind": "capsule", "from": Vector2(864, 312), "to": Vector2(864, 500), "radius": 6 },
+	{ "kind": "capsule", "from": Vector2(1138, 312), "to": Vector2(1138, 470), "radius": 6 },
+	{ "kind": "capsule", "from": Vector2(862, 494), "to": Vector2(1138, 494), "radius": 6 },
+	{ "kind": "capsule", "from": Vector2(772, 726), "to": Vector2(1018, 726), "radius": 7 },
+	{ "kind": "capsule", "from": Vector2(772, 906), "to": Vector2(1018, 906), "radius": 7 },
+	{ "kind": "capsule", "from": Vector2(782, 724), "to": Vector2(782, 906), "radius": 7 },
+	{ "kind": "capsule", "from": Vector2(1010, 724), "to": Vector2(1010, 906), "radius": 7 },
+	{ "kind": "capsule", "from": Vector2(536, 718), "to": Vector2(536, 910), "radius": 8 },
+	{ "kind": "capsule", "from": Vector2(746, 718), "to": Vector2(746, 910), "radius": 8 },
+	{ "kind": "capsule", "from": Vector2(548, 732), "to": Vector2(724, 732), "radius": 8 },
+	{ "kind": "capsule", "from": Vector2(548, 894), "to": Vector2(724, 894), "radius": 8 },
+	{ "kind": "polygon", "points": [Vector2(0, 845), Vector2(120, 820), Vector2(160, 930), Vector2(265, 1015), Vector2(260, 1254), Vector2(0, 1254)] }
 ]
 
 @onready var local_player: CharacterBody2D = %LocalPlayer
@@ -111,7 +106,7 @@ func _ready() -> void:
 	camera.limit_top = 0
 	camera.limit_right = MAP_WIDTH
 	camera.limit_bottom = MAP_HEIGHT
-	_create_map_blockers()
+	_create_map_collision()
 	local_player.input_changed.connect(_on_local_input_changed)
 	NetworkManager.connected.connect(_on_network_connected)
 	NetworkManager.snapshot_received.connect(_on_snapshot_received)
@@ -124,18 +119,36 @@ func _ready() -> void:
 			item.focus_entered.connect(_on_interactable_focus_entered)
 			item.focus_exited.connect(_on_interactable_focus_exited)
 
-func _create_map_blockers() -> void:
-	for index in MAP_BLOCKERS.size():
-		var rect: Rect2 = MAP_BLOCKERS[index]
+func _create_map_collision() -> void:
+	for index in MAP_COLLISION_SHAPES.size():
+		var shape_data: Dictionary = MAP_COLLISION_SHAPES[index]
 		var body := StaticBody2D.new()
-		body.name = "MapBlocker%s" % index
+		body.name = "MapCollision%s" % index
 		body.collision_layer = 1
 		body.collision_mask = 2
 		var shape := CollisionShape2D.new()
-		var rectangle := RectangleShape2D.new()
-		rectangle.size = rect.size
-		shape.shape = rectangle
-		shape.position = rect.position + rect.size * 0.5
+		var kind := String(shape_data.get("kind", ""))
+		if kind == "polygon":
+			var polygon := ConvexPolygonShape2D.new()
+			polygon.points = PackedVector2Array(shape_data["points"])
+			shape.shape = polygon
+		elif kind == "circle":
+			var circle := CircleShape2D.new()
+			circle.radius = float(shape_data["radius"])
+			shape.shape = circle
+			shape.position = shape_data["position"]
+		elif kind == "capsule":
+			var start: Vector2 = shape_data["from"]
+			var end: Vector2 = shape_data["to"]
+			var capsule := CapsuleShape2D.new()
+			capsule.radius = float(shape_data["radius"])
+			capsule.height = start.distance_to(end) + capsule.radius * 2.0
+			shape.shape = capsule
+			shape.position = (start + end) * 0.5
+			shape.rotation = (end - start).angle() + PI * 0.5
+		else:
+			push_warning("Unknown map collision kind: %s" % kind)
+			continue
 		body.add_child(shape)
 		object_layer.add_child(body)
 

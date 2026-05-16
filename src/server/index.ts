@@ -15,102 +15,99 @@ const SPAWN_SPACING_Y = 56;
 const SIMULATION_RATE_MS = 1000 / 30;
 const STATE_BROADCAST_RATE_MS = 1000 / 15;
 const SHARED_ROOM = 'main';
-const MAP_BLOCKERS: Rect[] = [
-  { x: 252, y: 86, width: 150, height: 133 },
-  { x: 468, y: 35, width: 186, height: 160 },
-  { x: 718, y: 97, width: 126, height: 142 },
-  { x: 976, y: 96, width: 158, height: 140 },
-  { x: 210, y: 330, width: 164, height: 124 },
-  { x: 915, y: 294, width: 222, height: 166 },
-  { x: 50, y: 560, width: 156, height: 150 },
-  { x: 260, y: 552, width: 126, height: 126 },
-  { x: 552, y: 306, width: 168, height: 304 },
-  { x: 924, y: 512, width: 188, height: 170 },
-  { x: 282, y: 775, width: 178, height: 160 },
-  { x: 792, y: 772, width: 158, height: 148 },
-  { x: 1020, y: 773, width: 160, height: 152 },
-  { x: 1000, y: 985, width: 178, height: 168 },
-  { x: 0, y: 0, width: 70, height: 110 },
-  { x: 128, y: 62, width: 70, height: 100 },
-  { x: 216, y: 12, width: 64, height: 100 },
-  { x: 310, y: 0, width: 70, height: 100 },
-  { x: 662, y: 0, width: 72, height: 110 },
-  { x: 958, y: 0, width: 78, height: 112 },
-  { x: 1052, y: 20, width: 74, height: 112 },
-  { x: 1140, y: 60, width: 72, height: 108 },
-  { x: 0, y: 190, width: 78, height: 118 },
-  { x: 1200, y: 175, width: 54, height: 112 },
-  { x: 456, y: 330, width: 64, height: 118 },
-  { x: 748, y: 336, width: 62, height: 112 },
-  { x: 810, y: 318, width: 72, height: 120 },
-  { x: 1180, y: 326, width: 74, height: 110 },
-  { x: 0, y: 468, width: 82, height: 108 },
-  { x: 1188, y: 535, width: 66, height: 112 },
-  { x: 1185, y: 745, width: 69, height: 120 },
-  { x: 10, y: 770, width: 68, height: 112 },
-  { x: 92, y: 784, width: 66, height: 106 },
-  { x: 154, y: 780, width: 62, height: 110 },
-  { x: 790, y: 640, width: 62, height: 110 },
-  { x: 970, y: 980, width: 70, height: 112 },
-  { x: 396, y: 1010, width: 68, height: 105 },
-  { x: 502, y: 1000, width: 72, height: 118 },
-  { x: 650, y: 1080, width: 70, height: 118 },
-  { x: 870, y: 1090, width: 70, height: 118 },
-  { x: 1180, y: 1042, width: 74, height: 110 },
-  { x: 20, y: 323, width: 150, height: 20 },
-  { x: 20, y: 450, width: 150, height: 20 },
-  { x: 20, y: 323, width: 18, height: 148 },
-  { x: 154, y: 323, width: 18, height: 148 },
-  { x: 198, y: 128, width: 55, height: 20 },
-  { x: 198, y: 145, width: 18, height: 138 },
-  { x: 244, y: 262, width: 39, height: 20 },
-  { x: 348, y: 262, width: 100, height: 20 },
-  { x: 406, y: 128, width: 44, height: 20 },
-  { x: 430, y: 140, width: 20, height: 122 },
-  { x: 462, y: 191, width: 86, height: 20 },
-  { x: 688, y: 126, width: 18, height: 160 },
-  { x: 838, y: 128, width: 18, height: 160 },
-  { x: 820, y: 262, width: 50, height: 28 },
-  { x: 930, y: 128, width: 18, height: 152 },
-  { x: 1130, y: 128, width: 18, height: 152 },
-  { x: 948, y: 263, width: 50, height: 20 },
-  { x: 1085, y: 263, width: 54, height: 20 },
-  { x: 435, y: 480, width: 22, height: 142 },
-  { x: 538, y: 572, width: 88, height: 42 },
-  { x: 650, y: 596, width: 74, height: 28 },
-  { x: 800, y: 480, width: 26, height: 160 },
-  { x: 280, y: 692, width: 96, height: 22 },
-  { x: 50, y: 586, width: 18, height: 128 },
-  { x: 204, y: 586, width: 18, height: 128 },
-  { x: 258, y: 692, width: 130, height: 22 },
-  { x: 520, y: 665, width: 42, height: 26 },
-  { x: 650, y: 665, width: 82, height: 32 },
-  { x: 520, y: 820, width: 210, height: 90 },
-  { x: 778, y: 790, width: 18, height: 132 },
-  { x: 946, y: 790, width: 18, height: 132 },
-  { x: 796, y: 912, width: 150, height: 20 },
-  { x: 1000, y: 792, width: 18, height: 134 },
-  { x: 1178, y: 792, width: 18, height: 134 },
-  { x: 1020, y: 914, width: 160, height: 20 },
-  { x: 688, y: 1002, width: 212, height: 24 },
-  { x: 688, y: 1000, width: 18, height: 196 },
-  { x: 898, y: 1000, width: 18, height: 196 },
-  { x: 760, y: 1130, width: 70, height: 46 },
-  { x: 960, y: 1032, width: 42, height: 180 },
-  { x: 1176, y: 1032, width: 18, height: 180 },
-  { x: 1000, y: 1160, width: 176, height: 20 },
-  { x: 0, y: 922, width: 270, height: 64 },
-  { x: 0, y: 978, width: 220, height: 276 },
-  { x: 206, y: 1048, width: 70, height: 160 }
+const MAP_COLLISION_SHAPES: MapCollisionShape[] = [
+  { kind: 'polygon', points: [{ x: 96, y: 118 }, { x: 208, y: 118 }, { x: 208, y: 184 }, { x: 190, y: 200 }, { x: 112, y: 200 }, { x: 96, y: 184 }] },
+  { kind: 'polygon', points: [{ x: 286, y: 120 }, { x: 390, y: 120 }, { x: 390, y: 188 }, { x: 374, y: 204 }, { x: 302, y: 204 }, { x: 286, y: 188 }] },
+  { kind: 'polygon', points: [{ x: 486, y: 122 }, { x: 604, y: 122 }, { x: 604, y: 188 }, { x: 586, y: 204 }, { x: 504, y: 204 }, { x: 486, y: 188 }] },
+  { kind: 'polygon', points: [{ x: 686, y: 126 }, { x: 796, y: 126 }, { x: 796, y: 192 }, { x: 778, y: 208 }, { x: 704, y: 208 }, { x: 686, y: 192 }] },
+  { kind: 'polygon', points: [{ x: 900, y: 126 }, { x: 1028, y: 126 }, { x: 1028, y: 200 }, { x: 1008, y: 218 }, { x: 920, y: 218 }, { x: 900, y: 200 }] },
+  { kind: 'polygon', points: [{ x: 1086, y: 122 }, { x: 1202, y: 122 }, { x: 1202, y: 194 }, { x: 1184, y: 210 }, { x: 1104, y: 210 }, { x: 1086, y: 194 }] },
+  { kind: 'polygon', points: [{ x: 192, y: 344 }, { x: 386, y: 344 }, { x: 386, y: 420 }, { x: 362, y: 442 }, { x: 216, y: 442 }, { x: 192, y: 420 }] },
+  { kind: 'polygon', points: [{ x: 900, y: 360 }, { x: 1122, y: 360 }, { x: 1122, y: 458 }, { x: 1096, y: 480 }, { x: 926, y: 480 }, { x: 900, y: 458 }] },
+  { kind: 'polygon', points: [{ x: 560, y: 350 }, { x: 714, y: 350 }, { x: 714, y: 542 }, { x: 692, y: 568 }, { x: 582, y: 568 }, { x: 560, y: 542 }] },
+  { kind: 'polygon', points: [{ x: 250, y: 562 }, { x: 412, y: 562 }, { x: 412, y: 650 }, { x: 388, y: 672 }, { x: 274, y: 672 }, { x: 250, y: 650 }] },
+  { kind: 'polygon', points: [{ x: 46, y: 648 }, { x: 190, y: 648 }, { x: 190, y: 732 }, { x: 168, y: 752 }, { x: 68, y: 752 }, { x: 46, y: 732 }] },
+  { kind: 'polygon', points: [{ x: 1044, y: 578 }, { x: 1178, y: 578 }, { x: 1178, y: 662 }, { x: 1160, y: 680 }, { x: 1062, y: 680 }, { x: 1044, y: 662 }] },
+  { kind: 'polygon', points: [{ x: 292, y: 790 }, { x: 426, y: 790 }, { x: 426, y: 872 }, { x: 406, y: 890 }, { x: 312, y: 890 }, { x: 292, y: 872 }] },
+  { kind: 'polygon', points: [{ x: 1114, y: 796 }, { x: 1244, y: 796 }, { x: 1244, y: 878 }, { x: 1226, y: 896 }, { x: 1132, y: 896 }, { x: 1114, y: 878 }] },
+  { kind: 'polygon', points: [{ x: 400, y: 1050 }, { x: 520, y: 1050 }, { x: 520, y: 1132 }, { x: 500, y: 1150 }, { x: 420, y: 1150 }, { x: 400, y: 1132 }] },
+  { kind: 'polygon', points: [{ x: 592, y: 1050 }, { x: 722, y: 1050 }, { x: 722, y: 1132 }, { x: 702, y: 1150 }, { x: 612, y: 1150 }, { x: 592, y: 1132 }] },
+  { kind: 'polygon', points: [{ x: 796, y: 1048 }, { x: 928, y: 1048 }, { x: 928, y: 1130 }, { x: 908, y: 1148 }, { x: 816, y: 1148 }, { x: 796, y: 1130 }] },
+  { kind: 'polygon', points: [{ x: 1040, y: 1050 }, { x: 1184, y: 1050 }, { x: 1184, y: 1134 }, { x: 1162, y: 1152 }, { x: 1062, y: 1152 }, { x: 1040, y: 1134 }] },
+  { kind: 'circle', position: { x: 28, y: 78 }, radius: 15 },
+  { kind: 'circle', position: { x: 125, y: 34 }, radius: 14 },
+  { kind: 'circle', position: { x: 224, y: 34 }, radius: 14 },
+  { kind: 'circle', position: { x: 348, y: 34 }, radius: 15 },
+  { kind: 'circle', position: { x: 492, y: 42 }, radius: 14 },
+  { kind: 'circle', position: { x: 594, y: 48 }, radius: 14 },
+  { kind: 'circle', position: { x: 772, y: 36 }, radius: 15 },
+  { kind: 'circle', position: { x: 968, y: 36 }, radius: 15 },
+  { kind: 'circle', position: { x: 1124, y: 36 }, radius: 15 },
+  { kind: 'circle', position: { x: 1225, y: 72 }, radius: 16 },
+  { kind: 'circle', position: { x: 30, y: 185 }, radius: 15 },
+  { kind: 'circle', position: { x: 1226, y: 240 }, radius: 16 },
+  { kind: 'circle', position: { x: 30, y: 380 }, radius: 16 },
+  { kind: 'circle', position: { x: 1222, y: 430 }, radius: 16 },
+  { kind: 'circle', position: { x: 1222, y: 628 }, radius: 16 },
+  { kind: 'circle', position: { x: 38, y: 850 }, radius: 16 },
+  { kind: 'circle', position: { x: 36, y: 1140 }, radius: 16 },
+  { kind: 'circle', position: { x: 146, y: 1210 }, radius: 15 },
+  { kind: 'circle', position: { x: 288, y: 1210 }, radius: 15 },
+  { kind: 'circle', position: { x: 510, y: 1210 }, radius: 15 },
+  { kind: 'circle', position: { x: 718, y: 1210 }, radius: 15 },
+  { kind: 'circle', position: { x: 908, y: 1210 }, radius: 15 },
+  { kind: 'circle', position: { x: 1148, y: 1210 }, radius: 16 },
+  { kind: 'circle', position: { x: 633, y: 778 }, radius: 28 },
+  { kind: 'circle', position: { x: 632, y: 826 }, radius: 20 },
+  { kind: 'circle', position: { x: 820, y: 764 }, radius: 12 },
+  { kind: 'circle', position: { x: 890, y: 764 }, radius: 12 },
+  { kind: 'circle', position: { x: 942, y: 820 }, radius: 12 },
+  { kind: 'circle', position: { x: 828, y: 850 }, radius: 12 },
+  { kind: 'circle', position: { x: 912, y: 866 }, radius: 12 },
+  { kind: 'circle', position: { x: 226, y: 520 }, radius: 12 },
+  { kind: 'circle', position: { x: 1180, y: 92 }, radius: 11 },
+  { kind: 'circle', position: { x: 1168, y: 415 }, radius: 12 },
+  { kind: 'capsule', from: { x: 72, y: 76 }, to: { x: 238, y: 76 }, radius: 5 },
+  { kind: 'capsule', from: { x: 74, y: 184 }, to: { x: 232, y: 184 }, radius: 5 },
+  { kind: 'capsule', from: { x: 274, y: 76 }, to: { x: 416, y: 76 }, radius: 5 },
+  { kind: 'capsule', from: { x: 274, y: 184 }, to: { x: 416, y: 184 }, radius: 5 },
+  { kind: 'capsule', from: { x: 476, y: 76 }, to: { x: 626, y: 76 }, radius: 5 },
+  { kind: 'capsule', from: { x: 476, y: 184 }, to: { x: 626, y: 184 }, radius: 5 },
+  { kind: 'capsule', from: { x: 672, y: 76 }, to: { x: 822, y: 76 }, radius: 5 },
+  { kind: 'capsule', from: { x: 672, y: 184 }, to: { x: 822, y: 184 }, radius: 5 },
+  { kind: 'capsule', from: { x: 886, y: 76 }, to: { x: 1048, y: 76 }, radius: 5 },
+  { kind: 'capsule', from: { x: 886, y: 184 }, to: { x: 1048, y: 184 }, radius: 5 },
+  { kind: 'capsule', from: { x: 1070, y: 76 }, to: { x: 1230, y: 76 }, radius: 5 },
+  { kind: 'capsule', from: { x: 1070, y: 184 }, to: { x: 1230, y: 184 }, radius: 5 },
+  { kind: 'capsule', from: { x: 460, y: 304 }, to: { x: 460, y: 570 }, radius: 8 },
+  { kind: 'capsule', from: { x: 796, y: 304 }, to: { x: 796, y: 586 }, radius: 8 },
+  { kind: 'capsule', from: { x: 530, y: 296 }, to: { x: 530, y: 445 }, radius: 9 },
+  { kind: 'capsule', from: { x: 746, y: 296 }, to: { x: 746, y: 455 }, radius: 9 },
+  { kind: 'capsule', from: { x: 56, y: 462 }, to: { x: 202, y: 462 }, radius: 6 },
+  { kind: 'capsule', from: { x: 56, y: 560 }, to: { x: 202, y: 560 }, radius: 6 },
+  { kind: 'capsule', from: { x: 864, y: 312 }, to: { x: 864, y: 500 }, radius: 6 },
+  { kind: 'capsule', from: { x: 1138, y: 312 }, to: { x: 1138, y: 470 }, radius: 6 },
+  { kind: 'capsule', from: { x: 862, y: 494 }, to: { x: 1138, y: 494 }, radius: 6 },
+  { kind: 'capsule', from: { x: 772, y: 726 }, to: { x: 1018, y: 726 }, radius: 7 },
+  { kind: 'capsule', from: { x: 772, y: 906 }, to: { x: 1018, y: 906 }, radius: 7 },
+  { kind: 'capsule', from: { x: 782, y: 724 }, to: { x: 782, y: 906 }, radius: 7 },
+  { kind: 'capsule', from: { x: 1010, y: 724 }, to: { x: 1010, y: 906 }, radius: 7 },
+  { kind: 'capsule', from: { x: 536, y: 718 }, to: { x: 536, y: 910 }, radius: 8 },
+  { kind: 'capsule', from: { x: 746, y: 718 }, to: { x: 746, y: 910 }, radius: 8 },
+  { kind: 'capsule', from: { x: 548, y: 732 }, to: { x: 724, y: 732 }, radius: 8 },
+  { kind: 'capsule', from: { x: 548, y: 894 }, to: { x: 724, y: 894 }, radius: 8 },
+  { kind: 'polygon', points: [{ x: 0, y: 845 }, { x: 120, y: 820 }, { x: 160, y: 930 }, { x: 265, y: 1015 }, { x: 260, y: 1254 }, { x: 0, y: 1254 }] }
 ];
 
 type Direction = 'down' | 'up' | 'left' | 'right';
-type Rect = {
+type Point = {
   x: number;
   y: number;
-  width: number;
-  height: number;
 };
+type MapCollisionShape =
+  | { kind: 'polygon'; points: Point[] }
+  | { kind: 'circle'; position: Point; radius: number }
+  | { kind: 'capsule'; from: Point; to: Point; radius: number };
 type CharacterId =
   | 'char_01'
   | 'char_02'
@@ -268,15 +265,72 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
+function distanceSquared(a: Point, b: Point): number {
+  return (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+}
+
+function distanceToSegmentSquared(point: Point, start: Point, end: Point): number {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const lengthSquared = dx * dx + dy * dy;
+
+  if (lengthSquared === 0) {
+    return distanceSquared(point, start);
+  }
+
+  const t = clamp(((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared, 0, 1);
+  const closest = { x: start.x + dx * t, y: start.y + dy * t };
+  return distanceSquared(point, closest);
+}
+
+function isPointInsidePolygon(point: Point, polygon: Point[]): boolean {
+  let inside = false;
+
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const current = polygon[i];
+    const previous = polygon[j];
+    const crossesY = current.y > point.y !== previous.y > point.y;
+
+    if (crossesY) {
+      const crossingX = ((previous.x - current.x) * (point.y - current.y)) / (previous.y - current.y) + current.x;
+      if (point.x < crossingX) {
+        inside = !inside;
+      }
+    }
+  }
+
+  return inside;
+}
+
+function collidesWithPolygon(point: Point, radius: number, polygon: Point[]): boolean {
+  if (isPointInsidePolygon(point, polygon)) {
+    return true;
+  }
+
+  const radiusSquared = radius * radius;
+  return polygon.some((start, index) => {
+    const end = polygon[(index + 1) % polygon.length];
+    return distanceToSegmentSquared(point, start, end) <= radiusSquared;
+  });
+}
+
+function collidesWithShape(point: Point, radius: number, shape: MapCollisionShape): boolean {
+  if (shape.kind === 'circle') {
+    const combinedRadius = radius + shape.radius;
+    return distanceSquared(point, shape.position) <= combinedRadius * combinedRadius;
+  }
+
+  if (shape.kind === 'capsule') {
+    const combinedRadius = radius + shape.radius;
+    return distanceToSegmentSquared(point, shape.from, shape.to) <= combinedRadius * combinedRadius;
+  }
+
+  return collidesWithPolygon(point, radius, shape.points);
+}
+
 function isBlockedPosition(x: number, y: number): boolean {
   const radius = PLAYER_SIZE / 2;
-  return MAP_BLOCKERS.some(
-    (rect) =>
-      x >= rect.x - radius &&
-      x <= rect.x + rect.width + radius &&
-      y >= rect.y - radius &&
-      y <= rect.y + rect.height + radius
-  );
+  return MAP_COLLISION_SHAPES.some((shape) => collidesWithShape({ x, y }, radius, shape));
 }
 
 function moveWithCollision(player: Player, input: PlayerInput, deltaSeconds: number): void {
