@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { Player, PlayerState, Projectile } from '../../shared/types';
+import { getCharacterImageUrl, imageCharacterOptions } from '../characterOptions';
 import { getSocket, type GameSocket } from '../network/socket';
 
 const ROOM_WIDTH = 800;
@@ -14,7 +15,7 @@ const PROJECTILE_COOLDOWN_MS = 250;
 const PROJECTILE_KNOCKBACK_DISTANCE = 72;
 
 type PlayerSprite = {
-  body: Phaser.GameObjects.Shape;
+  body: Phaser.GameObjects.Shape | Phaser.GameObjects.Image;
   label: Phaser.GameObjects.Text;
 };
 
@@ -42,6 +43,14 @@ export class GameScene extends Phaser.Scene {
 
   constructor() {
     super('GameScene');
+  }
+
+  preload(): void {
+    imageCharacterOptions.forEach((option) => {
+      if (option.imageUrl) {
+        this.load.image(option.shape, option.imageUrl);
+      }
+    });
   }
 
   create(): void {
@@ -90,6 +99,8 @@ export class GameScene extends Phaser.Scene {
     this.socket.on('projectile:spawn', (projectile) => {
       this.spawnProjectile(projectile);
     });
+
+    this.socket.connect();
   }
 
   update(_time: number, delta: number): void {
@@ -207,7 +218,14 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private createPlayerBody(player: Player): Phaser.GameObjects.Shape {
+  private createPlayerBody(player: Player): Phaser.GameObjects.Shape | Phaser.GameObjects.Image {
+    if (getCharacterImageUrl(player.shape)) {
+      return this.add
+        .image(player.x, player.y, player.shape)
+        .setDisplaySize(PLAYER_SIZE * 1.4, PLAYER_SIZE * 1.4)
+        .setDepth(2);
+    }
+
     const color = Phaser.Display.Color.HexStringToColor(player.color).color;
     const halfSize = PLAYER_SIZE / 2;
 

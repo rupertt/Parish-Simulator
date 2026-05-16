@@ -1,4 +1,17 @@
-export type PlayerShape = 'square' | 'circle' | 'diamond' | 'triangle';
+export const PLAYER_SHAPES = [
+  'square',
+  'circle',
+  'diamond',
+  'triangle',
+  'henry',
+  'dad',
+  'alex',
+  'max',
+  'julius',
+  'rupert'
+] as const;
+
+export type PlayerShape = (typeof PLAYER_SHAPES)[number];
 
 export type Player = {
   id: string;
