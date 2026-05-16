@@ -70,6 +70,11 @@ const characters: Record<CharacterId, { color: string }> = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const webExportPath = path.resolve(__dirname, '../../web-export');
+const compressedAssetTypes: Record<string, string> = {
+  '.js': 'application/javascript; charset=utf-8',
+  '.pck': 'application/octet-stream',
+  '.wasm': 'application/wasm'
+};
 
 app.get('/health', (_req, res) => {
   res.json({ ok: true, app: 'parish-simulator-godot-mvp' });
@@ -106,6 +111,26 @@ if (process.env.NODE_ENV !== 'production') {
     });
   });
 }
+
+app.get(['/index.js', '/index.pck', '/index.wasm'], (req, res, next) => {
+  const extension = path.extname(req.path);
+  const contentType = compressedAssetTypes[extension];
+  const gzipPath = path.join(webExportPath, `${path.basename(req.path)}.gz`);
+
+  if (!contentType || !req.acceptsEncodings('gzip')) {
+    next();
+    return;
+  }
+
+  res.setHeader('Content-Encoding', 'gzip');
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Vary', 'Accept-Encoding');
+  res.sendFile(gzipPath, (error) => {
+    if (error) {
+      next();
+    }
+  });
+});
 
 app.use(express.static(webExportPath));
 app.get('*', (_req, res) => {
