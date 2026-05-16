@@ -28,9 +28,15 @@ export type PlayerProfile = {
   shape: PlayerShape;
 };
 
-export type PlayerMove = {
-  x: number;
-  y: number;
+export type PlayerInput = {
+  directionX: number;
+  directionY: number;
+};
+
+export type PlayerKnockback = {
+  directionX: number;
+  directionY: number;
+  distance: number;
 };
 
 export type ProjectileFire = {

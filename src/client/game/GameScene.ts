@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import type { Player, PlayerState, Projectile } from '../../shared/types';
+import type { Player, PlayerInput, PlayerState, Projectile } from '../../shared/types';
 import { getCharacterImageUrl, imageCharacterOptions } from '../characterOptions';
 import { getSocket, type GameSocket } from '../network/socket';
 
@@ -7,7 +7,9 @@ const ROOM_WIDTH = 800;
 const ROOM_HEIGHT = 600;
 const PLAYER_SIZE = 24;
 const PLAYER_SPEED = 180;
-const MOVE_SEND_INTERVAL_MS = 1000 / 30;
+const INPUT_SEND_INTERVAL_MS = 1000 / 20;
+const REMOTE_INTERPOLATION = 0.35;
+const LOCAL_RECONCILE_DISTANCE = 48;
 const PROJECTILE_SIZE = 6;
 const PROJECTILE_SPEED = 380;
 const PROJECTILE_LIFETIME_MS = 5000;
@@ -17,6 +19,7 @@ const PROJECTILE_KNOCKBACK_DISTANCE = 72;
 type PlayerSprite = {
   body: Phaser.GameObjects.Shape | Phaser.GameObjects.Image;
   label: Phaser.GameObjects.Text;
+  targetPosition: Phaser.Math.Vector2;
 };
 
 type ProjectileSprite = {
@@ -36,9 +39,9 @@ export class GameScene extends Phaser.Scene {
   private projectileSprites = new Map<string, ProjectileSprite>();
   private localPlayerId = '';
   private localPosition = new Phaser.Math.Vector2(ROOM_WIDTH / 2, ROOM_HEIGHT / 2);
-  private lastSentPosition = new Phaser.Math.Vector2(-1, -1);
   private lastFacing = new Phaser.Math.Vector2(1, 0);
-  private moveSendElapsed = 0;
+  private lastSentInput: PlayerInput = { directionX: 0, directionY: 0 };
+  private inputSendElapsed = INPUT_SEND_INTERVAL_MS;
   private projectileCooldownElapsed = PROJECTILE_COOLDOWN_MS;
 
   constructor() {
@@ -88,10 +91,6 @@ export class GameScene extends Phaser.Scene {
       this.upsertPlayer(player);
     });
 
-    this.socket.on('player:move', (player) => {
-      this.upsertPlayer(player);
-    });
-
     this.socket.on('player:left', (id) => {
       this.removePlayer(id);
     });
@@ -104,6 +103,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
+    this.interpolateRemotePlayers();
     this.updateProjectiles(delta);
     this.projectileCooldownElapsed += delta;
 
@@ -125,6 +125,10 @@ export class GameScene extends Phaser.Scene {
       move.x += 1;
     }
 
+    const input = this.toPlayerInput(move);
+    this.inputSendElapsed += delta;
+    this.sendInputIfNeeded(input);
+
     if (move.lengthSq() > 0) {
       move.normalize();
       this.lastFacing.copy(move);
@@ -141,19 +145,6 @@ export class GameScene extends Phaser.Scene {
       );
 
       this.movePlayerSprite(this.localPlayerId, this.localPosition.x, this.localPosition.y);
-      this.moveSendElapsed += delta;
-
-      if (
-        this.moveSendElapsed >= MOVE_SEND_INTERVAL_MS ||
-        Phaser.Math.Distance.BetweenPoints(this.localPosition, this.lastSentPosition) >= PLAYER_SIZE / 2
-      ) {
-        this.moveSendElapsed = 0;
-        this.lastSentPosition.copy(this.localPosition);
-        this.socket?.emit('player:move', {
-          x: this.localPosition.x,
-          y: this.localPosition.y
-        });
-      }
     }
 
     if (
@@ -196,7 +187,7 @@ export class GameScene extends Phaser.Scene {
   private upsertPlayer(player: Player): void {
     const sprite = this.playerSprites.get(player.id);
     if (sprite) {
-      this.movePlayerSprite(player.id, player.x, player.y);
+      this.applyServerPlayerPosition(player, sprite);
       return;
     }
 
@@ -211,7 +202,11 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(3);
 
-    this.playerSprites.set(player.id, { body, label });
+    this.playerSprites.set(player.id, {
+      body,
+      label,
+      targetPosition: new Phaser.Math.Vector2(player.x, player.y)
+    });
 
     if (player.id === this.localPlayerId) {
       this.localPosition.set(player.x, player.y);
@@ -272,10 +267,73 @@ export class GameScene extends Phaser.Scene {
 
     sprite.body.setPosition(x, y);
     sprite.label.setPosition(x, y - 26);
+    sprite.targetPosition.set(x, y);
 
     if (id === this.localPlayerId) {
       this.localPosition.set(x, y);
     }
+  }
+
+  private setPlayerSpritePosition(sprite: PlayerSprite, x: number, y: number): void {
+    sprite.body.setPosition(x, y);
+    sprite.label.setPosition(x, y - 26);
+  }
+
+  private applyServerPlayerPosition(player: Player, sprite: PlayerSprite): void {
+    sprite.targetPosition.set(player.x, player.y);
+
+    if (player.id !== this.localPlayerId) {
+      return;
+    }
+
+    const distanceFromServer = Phaser.Math.Distance.Between(
+      this.localPosition.x,
+      this.localPosition.y,
+      player.x,
+      player.y
+    );
+
+    if (distanceFromServer >= LOCAL_RECONCILE_DISTANCE) {
+      this.localPosition.set(player.x, player.y);
+      this.setPlayerSpritePosition(sprite, player.x, player.y);
+    }
+  }
+
+  private interpolateRemotePlayers(): void {
+    for (const [id, sprite] of this.playerSprites) {
+      if (id === this.localPlayerId) {
+        continue;
+      }
+
+      const nextX = Phaser.Math.Linear(sprite.body.x, sprite.targetPosition.x, REMOTE_INTERPOLATION);
+      const nextY = Phaser.Math.Linear(sprite.body.y, sprite.targetPosition.y, REMOTE_INTERPOLATION);
+      this.setPlayerSpritePosition(sprite, nextX, nextY);
+    }
+  }
+
+  private toPlayerInput(move: Phaser.Math.Vector2): PlayerInput {
+    if (move.lengthSq() === 0) {
+      return { directionX: 0, directionY: 0 };
+    }
+
+    const normalizedMove = move.clone().normalize();
+    return {
+      directionX: normalizedMove.x,
+      directionY: normalizedMove.y
+    };
+  }
+
+  private sendInputIfNeeded(input: PlayerInput): void {
+    const changed =
+      input.directionX !== this.lastSentInput.directionX || input.directionY !== this.lastSentInput.directionY;
+
+    if (!changed && this.inputSendElapsed < INPUT_SEND_INTERVAL_MS) {
+      return;
+    }
+
+    this.inputSendElapsed = 0;
+    this.lastSentInput = input;
+    this.socket?.emit('player:input', input);
   }
 
   private fireProjectile(): void {
@@ -370,11 +428,10 @@ export class GameScene extends Phaser.Scene {
       ROOM_HEIGHT - PLAYER_SIZE / 2
     );
     this.movePlayerSprite(this.localPlayerId, this.localPosition.x, this.localPosition.y);
-    this.lastSentPosition.copy(this.localPosition);
-    this.moveSendElapsed = 0;
-    this.socket?.emit('player:move', {
-      x: this.localPosition.x,
-      y: this.localPosition.y
+    this.socket?.emit('player:knockback', {
+      directionX: projectile.velocity.x,
+      directionY: projectile.velocity.y,
+      distance: PROJECTILE_KNOCKBACK_DISTANCE
     });
   }
 

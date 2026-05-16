@@ -1,16 +1,24 @@
 import { io, Socket } from 'socket.io-client';
-import type { Player, PlayerMove, PlayerProfile, PlayerState, Projectile, ProjectileFire } from '../../shared/types';
+import type {
+  Player,
+  PlayerInput,
+  PlayerKnockback,
+  PlayerProfile,
+  PlayerState,
+  Projectile,
+  ProjectileFire
+} from '../../shared/types';
 
 type ServerToClientEvents = {
   'player:join': (player: Player) => void;
-  'player:move': (player: Player) => void;
   'player:state': (players: PlayerState) => void;
   'player:left': (id: string) => void;
   'projectile:spawn': (projectile: Projectile) => void;
 };
 
 type ClientToServerEvents = {
-  'player:move': (move: PlayerMove) => void;
+  'player:input': (input: PlayerInput) => void;
+  'player:knockback': (knockback: PlayerKnockback) => void;
   'projectile:fire': (projectile: ProjectileFire) => void;
 };
 

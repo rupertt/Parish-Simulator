@@ -6,7 +6,8 @@ import { Server } from 'socket.io';
 import {
   PLAYER_SHAPES,
   type Player,
-  type PlayerMove,
+  type PlayerInput,
+  type PlayerKnockback,
   type PlayerProfile,
   type PlayerShape,
   type PlayerState,
@@ -17,7 +18,11 @@ const PORT = Number(process.env.PORT) || 3000;
 const ROOM_WIDTH = 800;
 const ROOM_HEIGHT = 600;
 const PLAYER_SIZE = 24;
+const PLAYER_SPEED = 180;
+const SIMULATION_RATE_MS = 1000 / 60;
+const STATE_BROADCAST_RATE_MS = 1000 / 30;
 const MAX_PROJECTILE_OFFSET = PLAYER_SIZE * 2;
+const MAX_KNOCKBACK_DISTANCE = 96;
 
 const app = express();
 const server = http.createServer(app);
@@ -28,6 +33,7 @@ const io = new Server(server, {
 });
 
 const players: PlayerState = {};
+const playerInputs: Record<string, PlayerInput> = {};
 const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899'];
 const shapes: readonly PlayerShape[] = PLAYER_SHAPES;
 
@@ -48,13 +54,6 @@ if (process.env.NODE_ENV === 'production') {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
-}
-
-function clampMove(move: PlayerMove): PlayerMove {
-  return {
-    x: clamp(move.x, PLAYER_SIZE / 2, ROOM_WIDTH - PLAYER_SIZE / 2),
-    y: clamp(move.y, PLAYER_SIZE / 2, ROOM_HEIGHT - PLAYER_SIZE / 2)
-  };
 }
 
 function normalizeProjectileFire(fire: ProjectileFire, player: Player): ProjectileFire | undefined {
@@ -82,6 +81,35 @@ function normalizeProjectileFire(fire: ProjectileFire, player: Player): Projecti
     directionX: direction.x / length,
     directionY: direction.y / length
   };
+}
+
+function normalizePlayerInput(input: PlayerInput): PlayerInput {
+  const directionX = Number.isFinite(input.directionX) ? clamp(input.directionX, -1, 1) : 0;
+  const directionY = Number.isFinite(input.directionY) ? clamp(input.directionY, -1, 1) : 0;
+  const length = Math.hypot(directionX, directionY);
+
+  if (length === 0) {
+    return { directionX: 0, directionY: 0 };
+  }
+
+  return {
+    directionX: directionX / length,
+    directionY: directionY / length
+  };
+}
+
+function applyKnockback(player: Player, knockback: PlayerKnockback): void {
+  const directionX = Number.isFinite(knockback.directionX) ? knockback.directionX : 0;
+  const directionY = Number.isFinite(knockback.directionY) ? knockback.directionY : 0;
+  const length = Math.hypot(directionX, directionY);
+
+  if (length === 0) {
+    return;
+  }
+
+  const distance = Number.isFinite(knockback.distance) ? clamp(knockback.distance, 0, MAX_KNOCKBACK_DISTANCE) : 0;
+  player.x = clamp(player.x + (directionX / length) * distance, PLAYER_SIZE / 2, ROOM_WIDTH - PLAYER_SIZE / 2);
+  player.y = clamp(player.y + (directionY / length) * distance, PLAYER_SIZE / 2, ROOM_HEIGHT - PLAYER_SIZE / 2);
 }
 
 function sanitizeProfile(auth: unknown, fallbackName: string, fallbackColor: string): PlayerProfile {
@@ -114,20 +142,26 @@ io.on('connection', (socket) => {
   const profile = sanitizeProfile(socket.handshake.auth, `P${index + 1}`, colors[index % colors.length]);
   const player = createPlayer(socket.id, profile);
   players[socket.id] = player;
+  playerInputs[socket.id] = { directionX: 0, directionY: 0 };
 
   socket.emit('player:state', players);
   socket.broadcast.emit('player:join', player);
 
-  socket.on('player:move', (move: PlayerMove) => {
+  socket.on('player:input', (input: PlayerInput) => {
+    if (!players[socket.id]) {
+      return;
+    }
+
+    playerInputs[socket.id] = normalizePlayerInput(input);
+  });
+
+  socket.on('player:knockback', (knockback: PlayerKnockback) => {
     const existingPlayer = players[socket.id];
     if (!existingPlayer) {
       return;
     }
 
-    const clampedMove = clampMove(move);
-    existingPlayer.x = clampedMove.x;
-    existingPlayer.y = clampedMove.y;
-    io.emit('player:move', existingPlayer);
+    applyKnockback(existingPlayer, knockback);
   });
 
   socket.on('projectile:fire', (fire: ProjectileFire) => {
@@ -152,9 +186,27 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     delete players[socket.id];
+    delete playerInputs[socket.id];
     io.emit('player:left', socket.id);
   });
 });
+
+let lastSimulationTime = Date.now();
+setInterval(() => {
+  const now = Date.now();
+  const deltaSeconds = (now - lastSimulationTime) / 1000;
+  lastSimulationTime = now;
+
+  for (const [id, player] of Object.entries(players)) {
+    const input = playerInputs[id] ?? { directionX: 0, directionY: 0 };
+    player.x = clamp(player.x + input.directionX * PLAYER_SPEED * deltaSeconds, PLAYER_SIZE / 2, ROOM_WIDTH - PLAYER_SIZE / 2);
+    player.y = clamp(player.y + input.directionY * PLAYER_SPEED * deltaSeconds, PLAYER_SIZE / 2, ROOM_HEIGHT - PLAYER_SIZE / 2);
+  }
+}, SIMULATION_RATE_MS);
+
+setInterval(() => {
+  io.emit('player:state', players);
+}, STATE_BROADCAST_RATE_MS);
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server listening on http://localhost:${PORT}`);
