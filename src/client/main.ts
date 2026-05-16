@@ -9,17 +9,18 @@ const defaultColors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#
 function getSavedProfile(): PlayerProfile {
   const saved = window.localStorage.getItem('player-profile');
   if (!saved) {
-    return { name: '', color: defaultColors[Math.floor(Math.random() * defaultColors.length)] };
+    return { name: '', color: defaultColors[Math.floor(Math.random() * defaultColors.length)], shape: 'square' };
   }
 
   try {
     const profile = JSON.parse(saved) as Partial<PlayerProfile>;
     return {
       name: typeof profile.name === 'string' ? profile.name : '',
-      color: typeof profile.color === 'string' ? profile.color : defaultColors[0]
+      color: typeof profile.color === 'string' ? profile.color : defaultColors[0],
+      shape: profile.shape ?? 'square'
     };
   } catch {
-    return { name: '', color: defaultColors[0] };
+    return { name: '', color: defaultColors[0], shape: 'square' };
   }
 }
 
@@ -38,6 +39,15 @@ function askForPlayerProfile(): Promise<PlayerProfile> {
         Color
         <input name="color" type="color" value="${savedProfile.color}" />
       </label>
+      <label>
+        Shape
+        <select name="shape">
+          <option value="square" ${savedProfile.shape === 'square' ? 'selected' : ''}>Square</option>
+          <option value="circle" ${savedProfile.shape === 'circle' ? 'selected' : ''}>Circle</option>
+          <option value="diamond" ${savedProfile.shape === 'diamond' ? 'selected' : ''}>Diamond</option>
+          <option value="triangle" ${savedProfile.shape === 'triangle' ? 'selected' : ''}>Triangle</option>
+        </select>
+      </label>
       <button type="submit">Join</button>
     </form>
   `;
@@ -51,7 +61,8 @@ function askForPlayerProfile(): Promise<PlayerProfile> {
       const data = new FormData(form);
       const profile = {
         name: String(data.get('name') || '').trim() || 'Player',
-        color: String(data.get('color') || savedProfile.color)
+        color: String(data.get('color') || savedProfile.color),
+        shape: String(data.get('shape') || savedProfile.shape) as PlayerProfile['shape']
       };
 
       window.localStorage.setItem('player-profile', JSON.stringify(profile));

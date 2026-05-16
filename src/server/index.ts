@@ -3,7 +3,7 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Server } from 'socket.io';
-import type { Player, PlayerMove, PlayerProfile, PlayerState } from '../shared/types';
+import type { Player, PlayerMove, PlayerProfile, PlayerShape, PlayerState } from '../shared/types';
 
 const PORT = Number(process.env.PORT) || 3000;
 const ROOM_WIDTH = 800;
@@ -20,6 +20,7 @@ const io = new Server(server, {
 
 const players: PlayerState = {};
 const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899'];
+const shapes: PlayerShape[] = ['square', 'circle', 'diamond', 'triangle'];
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,10 +52,12 @@ function sanitizeProfile(auth: unknown, fallbackName: string, fallbackColor: str
   const profile = auth && typeof auth === 'object' ? (auth as Partial<PlayerProfile>) : {};
   const rawName = typeof profile.name === 'string' ? profile.name.trim() : '';
   const rawColor = typeof profile.color === 'string' ? profile.color.trim() : '';
+  const rawShape = typeof profile.shape === 'string' ? profile.shape : '';
 
   return {
     name: rawName.slice(0, 12) || fallbackName,
-    color: /^#[0-9a-fA-F]{6}$/.test(rawColor) ? rawColor : fallbackColor
+    color: /^#[0-9a-fA-F]{6}$/.test(rawColor) ? rawColor : fallbackColor,
+    shape: shapes.includes(rawShape as PlayerShape) ? (rawShape as PlayerShape) : 'square'
   };
 }
 
@@ -65,7 +68,8 @@ function createPlayer(id: string, profile: PlayerProfile): Player {
     x: 120 + (index % 6) * 48,
     y: 120 + Math.floor(index / 6) * 48,
     color: profile.color,
-    name: profile.name
+    name: profile.name,
+    shape: profile.shape
   };
 }
 

@@ -53,6 +53,7 @@ canvas {
 }
 
 .join-card input,
+.join-card select,
 .join-card button {
   min-height: 44px;
   border: 2px solid #64748b;
@@ -61,7 +62,8 @@ canvas {
   font: inherit;
 }
 
-.join-card input {
+.join-card input,
+.join-card select {
   padding: 0 10px;
 }
 

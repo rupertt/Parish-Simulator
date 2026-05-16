@@ -9,7 +9,7 @@ const PLAYER_SPEED = 180;
 const MOVE_SEND_INTERVAL_MS = 1000 / 30;
 
 type PlayerSprite = {
-  body: Phaser.GameObjects.Rectangle;
+  body: Phaser.GameObjects.Shape;
   label: Phaser.GameObjects.Text;
 };
 
@@ -156,10 +156,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    const body = this.add
-      .rectangle(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE, Phaser.Display.Color.HexStringToColor(player.color).color)
-      .setStrokeStyle(2, 0xf9fafb)
-      .setDepth(2);
+    const body = this.createPlayerBody(player);
 
     const label = this.add
       .text(player.x, player.y - 26, player.name, {
@@ -175,6 +172,45 @@ export class GameScene extends Phaser.Scene {
     if (player.id === this.localPlayerId) {
       this.localPosition.set(player.x, player.y);
     }
+  }
+
+  private createPlayerBody(player: Player): Phaser.GameObjects.Shape {
+    const color = Phaser.Display.Color.HexStringToColor(player.color).color;
+    const halfSize = PLAYER_SIZE / 2;
+
+    if (player.shape === 'circle') {
+      return this.add.circle(player.x, player.y, halfSize, color).setStrokeStyle(2, 0xf9fafb).setDepth(2);
+    }
+
+    if (player.shape === 'diamond') {
+      return this.add
+        .polygon(
+          player.x,
+          player.y,
+          [
+            0,
+            -halfSize,
+            halfSize,
+            0,
+            0,
+            halfSize,
+            -halfSize,
+            0
+          ],
+          color
+        )
+        .setStrokeStyle(2, 0xf9fafb)
+        .setDepth(2);
+    }
+
+    if (player.shape === 'triangle') {
+      return this.add
+        .triangle(player.x, player.y, 0, PLAYER_SIZE, halfSize, 0, PLAYER_SIZE, PLAYER_SIZE, color)
+        .setStrokeStyle(2, 0xf9fafb)
+        .setDepth(2);
+    }
+
+    return this.add.rectangle(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE, color).setStrokeStyle(2, 0xf9fafb).setDepth(2);
   }
 
   private movePlayerSprite(id: string, x: number, y: number): void {
