@@ -67,6 +67,16 @@ canvas {
   padding: 0 10px;
 }
 
+.name-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.name-row input {
+  min-width: 0;
+}
+
 .join-card input[type='color'] {
   width: 100%;
   padding: 4px;
@@ -77,4 +87,11 @@ canvas {
   background: #16a34a;
   border-color: #86efac;
   font-weight: 700;
+}
+
+.join-card .nickname-button {
+  padding: 0 12px;
+  background: #334155;
+  border-color: #94a3b8;
+  white-space: nowrap;
 }
