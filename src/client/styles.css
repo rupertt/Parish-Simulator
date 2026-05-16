@@ -89,6 +89,32 @@ canvas {
   font-weight: 700;
 }
 
+.version-card {
+  gap: 20px;
+}
+
+.version-buttons {
+  display: grid;
+  gap: 12px;
+}
+
+.version-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+}
+
+.version-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.version-status {
+  font-size: 12px;
+  color: #bbf7d0;
+}
+
 .join-card .nickname-button {
   padding: 0 12px;
   background: #334155;

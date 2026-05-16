@@ -119,3 +119,12 @@ git push -u origin feature/my-change
 ```
 
 Then open a pull request on GitHub.
+
+## Cloud Deployment
+
+The project is prepared for Google Cloud Run with two branches:
+
+- `main` deploys the production service.
+- `testing` deploys the testing service.
+
+See [docs/DEPLOYMENT_GCP.md](docs/DEPLOYMENT_GCP.md) for the Cloud Run and Cloud Build setup.

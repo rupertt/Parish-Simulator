@@ -54,6 +54,21 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true });
 });
 
+app.get('/config', (req, res) => {
+  const protocol = req.headers['x-forwarded-proto'] ?? req.protocol;
+  const host = req.headers['x-forwarded-host'] ?? req.headers.host;
+  const currentUrl = host ? `${protocol}://${host}` : '';
+  const appEnv = process.env.APP_ENV === 'testing' ? 'testing' : 'production';
+  const productionUrl = process.env.PRODUCTION_URL || (appEnv === 'production' ? currentUrl : '');
+  const testingUrl = process.env.TESTING_URL || (appEnv === 'testing' ? currentUrl : '');
+
+  res.json({
+    appEnv,
+    productionUrl,
+    testingUrl
+  });
+});
+
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(clientDistPath));
   app.get('*', (_req, res) => {

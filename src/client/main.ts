@@ -8,6 +8,12 @@ import type { PlayerProfile } from '../shared/types';
 const defaultColors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899'];
 const defaultNicknames = ['Bellringer', 'Lantern', 'Vestry', 'Candlewick', 'Parish Pal', 'Steeple'];
 
+type AppConfig = {
+  appEnv: 'production' | 'testing';
+  productionUrl: string;
+  testingUrl: string;
+};
+
 function getRandomNickname(): string {
   return defaultNicknames[Math.floor(Math.random() * defaultNicknames.length)];
 }
@@ -48,6 +54,75 @@ function renderCharacterChoice(option: (typeof characterOptions)[number], select
       <span class="character-name">${option.label}</span>
     </label>
   `;
+}
+
+async function getAppConfig(): Promise<AppConfig> {
+  try {
+    const response = await fetch('/config');
+    if (!response.ok) {
+      throw new Error('Config unavailable');
+    }
+
+    return await response.json() as AppConfig;
+  } catch {
+    return {
+      appEnv: 'production',
+      productionUrl: window.location.origin,
+      testingUrl: ''
+    };
+  }
+}
+
+function normalizeUrl(url: string): string {
+  return url.replace(/\/$/, '');
+}
+
+function versionButton(label: string, url: string, currentUrl: string, isCurrent: boolean): string {
+  const disabled = url ? '' : 'disabled';
+  const status = isCurrent ? '<span class="version-status">Current</span>' : '';
+  const target = url || '';
+
+  return `
+    <button class="version-button" type="button" data-url="${escapeAttribute(target)}" ${disabled}>
+      <span>${label}</span>
+      ${status}
+    </button>
+  `;
+}
+
+function askForVersion(config: AppConfig): Promise<void> {
+  const currentUrl = normalizeUrl(window.location.origin);
+  const productionUrl = normalizeUrl(config.productionUrl);
+  const testingUrl = normalizeUrl(config.testingUrl);
+  const overlay = document.createElement('div');
+  overlay.className = 'join-overlay';
+  overlay.innerHTML = `
+    <div class="join-card version-card">
+      <h1>Choose Version</h1>
+      <div class="version-buttons">
+        ${versionButton('Production', productionUrl, currentUrl, productionUrl === currentUrl || config.appEnv === 'production')}
+        ${versionButton('Testing', testingUrl, currentUrl, testingUrl === currentUrl || config.appEnv === 'testing')}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  return new Promise((resolve) => {
+    overlay.querySelectorAll<HTMLButtonElement>('.version-button').forEach((button) => {
+      button.addEventListener('click', () => {
+        const targetUrl = normalizeUrl(button.dataset.url || '');
+        overlay.remove();
+
+        if (targetUrl && targetUrl !== currentUrl) {
+          window.location.href = targetUrl;
+          return;
+        }
+
+        resolve();
+      });
+    });
+  });
 }
 
 function askForPlayerProfile(): Promise<PlayerProfile> {
@@ -111,10 +186,12 @@ function askForPlayerProfile(): Promise<PlayerProfile> {
 }
 
 async function startGame(): Promise<void> {
+  const appConfig = await getAppConfig();
+  await askForVersion(appConfig);
   const profile = await askForPlayerProfile();
   configureSocket(profile);
 
-  const config: Phaser.Types.Core.GameConfig = {
+  const gameConfig: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     parent: 'app',
     width: 800,
@@ -128,7 +205,7 @@ async function startGame(): Promise<void> {
     }
   };
 
-  new Phaser.Game(config);
+  new Phaser.Game(gameConfig);
 }
 
 void startGame();
