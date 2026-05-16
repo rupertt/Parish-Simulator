@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import './styles.css';
 import { GameScene } from './game/GameScene';
+import { characterOptions, isPlayerShape } from './characterOptions';
 import { configureSocket } from './network/socket';
 import type { PlayerProfile } from '../shared/types';
 
@@ -23,19 +24,36 @@ function getSavedProfile(): PlayerProfile {
 
   try {
     const profile = JSON.parse(saved) as Partial<PlayerProfile>;
+    const savedShape = typeof profile.shape === 'string' && isPlayerShape(profile.shape) ? profile.shape : 'square';
     return {
       name: typeof profile.name === 'string' ? profile.name : '',
       color: typeof profile.color === 'string' ? profile.color : defaultColors[0],
-      shape: profile.shape ?? 'square'
+      shape: savedShape
     };
   } catch {
     return { name: '', color: defaultColors[0], shape: 'square' };
   }
 }
 
+function renderCharacterChoice(option: (typeof characterOptions)[number], selectedShape: PlayerProfile['shape']): string {
+  const checked = option.shape === selectedShape ? 'checked' : '';
+  const preview = option.imageUrl
+    ? `<img src="${option.imageUrl}" alt="" />`
+    : `<span class="shape-preview shape-preview-${option.shape}"></span>`;
+
+  return `
+    <label class="character-choice">
+      <input type="radio" name="shape" value="${option.shape}" ${checked} />
+      <span class="character-preview">${preview}</span>
+      <span class="character-name">${option.label}</span>
+    </label>
+  `;
+}
+
 function askForPlayerProfile(): Promise<PlayerProfile> {
   const savedProfile = getSavedProfile();
   const suggestedNickname = getRandomNickname();
+  const characterChoices = characterOptions.map((option) => renderCharacterChoice(option, savedProfile.shape)).join('');
   const overlay = document.createElement('div');
   overlay.className = 'join-overlay';
   overlay.innerHTML = `
@@ -52,15 +70,10 @@ function askForPlayerProfile(): Promise<PlayerProfile> {
         Color
         <input name="color" type="color" value="${savedProfile.color}" />
       </label>
-      <label>
-        Shape
-        <select name="shape">
-          <option value="square" ${savedProfile.shape === 'square' ? 'selected' : ''}>Square</option>
-          <option value="circle" ${savedProfile.shape === 'circle' ? 'selected' : ''}>Circle</option>
-          <option value="diamond" ${savedProfile.shape === 'diamond' ? 'selected' : ''}>Diamond</option>
-          <option value="triangle" ${savedProfile.shape === 'triangle' ? 'selected' : ''}>Triangle</option>
-        </select>
-      </label>
+      <fieldset class="character-picker">
+        <legend>Character</legend>
+        <div class="character-grid">${characterChoices}</div>
+      </fieldset>
       <button type="submit">Join</button>
     </form>
   `;
@@ -87,7 +100,7 @@ function askForPlayerProfile(): Promise<PlayerProfile> {
       const profile = {
         name: String(data.get('name') || '').trim() || 'Player',
         color: String(data.get('color') || savedProfile.color),
-        shape: String(data.get('shape') || savedProfile.shape) as PlayerProfile['shape']
+        shape: isPlayerShape(String(data.get('shape') || '')) ? String(data.get('shape')) as PlayerProfile['shape'] : savedProfile.shape
       };
 
       window.localStorage.setItem('player-profile', JSON.stringify(profile));

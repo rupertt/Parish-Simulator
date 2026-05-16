@@ -3,7 +3,15 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Server } from 'socket.io';
-import type { Player, PlayerMove, PlayerProfile, PlayerShape, PlayerState, ProjectileFire } from '../shared/types';
+import {
+  PLAYER_SHAPES,
+  type Player,
+  type PlayerMove,
+  type PlayerProfile,
+  type PlayerShape,
+  type PlayerState,
+  type ProjectileFire
+} from '../shared/types';
 
 const PORT = Number(process.env.PORT) || 3000;
 const ROOM_WIDTH = 800;
@@ -21,7 +29,7 @@ const io = new Server(server, {
 
 const players: PlayerState = {};
 const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899'];
-const shapes: PlayerShape[] = ['square', 'circle', 'diamond', 'triangle'];
+const shapes: readonly PlayerShape[] = PLAYER_SHAPES;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
