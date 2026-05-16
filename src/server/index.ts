@@ -23,6 +23,15 @@ const SIMULATION_RATE_MS = 1000 / 60;
 const STATE_BROADCAST_RATE_MS = 1000 / 30;
 const MAX_PROJECTILE_OFFSET = PLAYER_SIZE * 2;
 const MAX_KNOCKBACK_DISTANCE = 96;
+const RIVER_LEFT = ROOM_WIDTH / 2 - 48;
+const RIVER_WIDTH = 96;
+const RIVER_RIGHT = RIVER_LEFT + RIVER_WIDTH;
+const BRIDGE_HEIGHT = 64;
+const BRIDGES = [
+  { y: 96, height: BRIDGE_HEIGHT },
+  { y: ROOM_HEIGHT / 2 - BRIDGE_HEIGHT / 2, height: BRIDGE_HEIGHT },
+  { y: ROOM_HEIGHT - 96 - BRIDGE_HEIGHT, height: BRIDGE_HEIGHT }
+];
 
 const app = express();
 const server = http.createServer(app);
@@ -54,6 +63,33 @@ if (process.env.NODE_ENV === 'production') {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
+}
+
+function resolvePlayerPosition(current: Pick<Player, 'x' | 'y'>, target: Pick<Player, 'x' | 'y'>): Pick<Player, 'x' | 'y'> {
+  const requested = {
+    x: clamp(target.x, PLAYER_SIZE / 2, ROOM_WIDTH - PLAYER_SIZE / 2),
+    y: clamp(target.y, PLAYER_SIZE / 2, ROOM_HEIGHT - PLAYER_SIZE / 2)
+  };
+
+  const resolved = { x: current.x, y: current.y };
+  if (canStandAt(requested.x, resolved.y)) {
+    resolved.x = requested.x;
+  }
+  if (canStandAt(resolved.x, requested.y)) {
+    resolved.y = requested.y;
+  }
+
+  return resolved;
+}
+
+function canStandAt(x: number, y: number): boolean {
+  const halfSize = PLAYER_SIZE / 2;
+  const overlapsRiver = x + halfSize > RIVER_LEFT && x - halfSize < RIVER_RIGHT;
+  if (!overlapsRiver) {
+    return true;
+  }
+
+  return BRIDGES.some((bridge) => y - halfSize >= bridge.y && y + halfSize <= bridge.y + bridge.height);
 }
 
 function normalizeProjectileFire(fire: ProjectileFire, player: Player): ProjectileFire | undefined {
@@ -108,8 +144,12 @@ function applyKnockback(player: Player, knockback: PlayerKnockback): void {
   }
 
   const distance = Number.isFinite(knockback.distance) ? clamp(knockback.distance, 0, MAX_KNOCKBACK_DISTANCE) : 0;
-  player.x = clamp(player.x + (directionX / length) * distance, PLAYER_SIZE / 2, ROOM_WIDTH - PLAYER_SIZE / 2);
-  player.y = clamp(player.y + (directionY / length) * distance, PLAYER_SIZE / 2, ROOM_HEIGHT - PLAYER_SIZE / 2);
+  const resolved = resolvePlayerPosition(player, {
+    x: player.x + (directionX / length) * distance,
+    y: player.y + (directionY / length) * distance
+  });
+  player.x = resolved.x;
+  player.y = resolved.y;
 }
 
 function sanitizeProfile(auth: unknown, fallbackName: string, fallbackColor: string): PlayerProfile {
@@ -199,8 +239,12 @@ setInterval(() => {
 
   for (const [id, player] of Object.entries(players)) {
     const input = playerInputs[id] ?? { directionX: 0, directionY: 0 };
-    player.x = clamp(player.x + input.directionX * PLAYER_SPEED * deltaSeconds, PLAYER_SIZE / 2, ROOM_WIDTH - PLAYER_SIZE / 2);
-    player.y = clamp(player.y + input.directionY * PLAYER_SPEED * deltaSeconds, PLAYER_SIZE / 2, ROOM_HEIGHT - PLAYER_SIZE / 2);
+    const resolved = resolvePlayerPosition(player, {
+      x: player.x + input.directionX * PLAYER_SPEED * deltaSeconds,
+      y: player.y + input.directionY * PLAYER_SPEED * deltaSeconds
+    });
+    player.x = resolved.x;
+    player.y = resolved.y;
   }
 }, SIMULATION_RATE_MS);
 

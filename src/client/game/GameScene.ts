@@ -15,6 +15,15 @@ const PROJECTILE_SPEED = 380;
 const PROJECTILE_LIFETIME_MS = 5000;
 const PROJECTILE_COOLDOWN_MS = 250;
 const PROJECTILE_KNOCKBACK_DISTANCE = 72;
+const RIVER_LEFT = ROOM_WIDTH / 2 - 48;
+const RIVER_WIDTH = 96;
+const RIVER_RIGHT = RIVER_LEFT + RIVER_WIDTH;
+const BRIDGE_HEIGHT = 64;
+const BRIDGES = [
+  { x: RIVER_LEFT, y: 96, width: RIVER_WIDTH, height: BRIDGE_HEIGHT },
+  { x: RIVER_LEFT, y: ROOM_HEIGHT / 2 - BRIDGE_HEIGHT / 2, width: RIVER_WIDTH, height: BRIDGE_HEIGHT },
+  { x: RIVER_LEFT, y: ROOM_HEIGHT - 96 - BRIDGE_HEIGHT, width: RIVER_WIDTH, height: BRIDGE_HEIGHT }
+];
 
 type PlayerSprite = {
   body: Phaser.GameObjects.Shape | Phaser.GameObjects.Image;
@@ -133,15 +142,11 @@ export class GameScene extends Phaser.Scene {
       move.normalize();
       this.lastFacing.copy(move);
       move.scale(PLAYER_SPEED * (delta / 1000));
-      this.localPosition.x = Phaser.Math.Clamp(
-        this.localPosition.x + move.x,
-        PLAYER_SIZE / 2,
-        ROOM_WIDTH - PLAYER_SIZE / 2
-      );
-      this.localPosition.y = Phaser.Math.Clamp(
-        this.localPosition.y + move.y,
-        PLAYER_SIZE / 2,
-        ROOM_HEIGHT - PLAYER_SIZE / 2
+      this.localPosition.copy(
+        this.resolvePlayerPosition(
+          this.localPosition,
+          new Phaser.Math.Vector2(this.localPosition.x + move.x, this.localPosition.y + move.y)
+        )
       );
 
       this.movePlayerSprite(this.localPlayerId, this.localPosition.x, this.localPosition.y);
@@ -158,6 +163,18 @@ export class GameScene extends Phaser.Scene {
 
   private createGrid(): void {
     const graphics = this.add.graphics();
+    graphics.fillStyle(0x1d4ed8, 0.9);
+    graphics.fillRect(RIVER_LEFT, 0, RIVER_WIDTH, ROOM_HEIGHT);
+    graphics.fillStyle(0x38bdf8, 0.22);
+    graphics.fillRect(RIVER_LEFT + 12, 0, 10, ROOM_HEIGHT);
+    graphics.fillRect(RIVER_RIGHT - 22, 0, 10, ROOM_HEIGHT);
+    graphics.fillStyle(0x475569, 1);
+    graphics.lineStyle(2, 0xcbd5e1, 0.8);
+    BRIDGES.forEach((bridge) => {
+      graphics.fillRect(bridge.x, bridge.y, bridge.width, bridge.height);
+      graphics.strokeRect(bridge.x, bridge.y, bridge.width, bridge.height);
+    });
+
     graphics.lineStyle(1, 0x374151, 0.45);
 
     for (let x = 0; x <= ROOM_WIDTH; x += 32) {
@@ -336,6 +353,33 @@ export class GameScene extends Phaser.Scene {
     this.socket?.emit('player:input', input);
   }
 
+  private resolvePlayerPosition(current: Phaser.Math.Vector2, requested: Phaser.Math.Vector2): Phaser.Math.Vector2 {
+    const next = new Phaser.Math.Vector2(
+      Phaser.Math.Clamp(requested.x, PLAYER_SIZE / 2, ROOM_WIDTH - PLAYER_SIZE / 2),
+      Phaser.Math.Clamp(requested.y, PLAYER_SIZE / 2, ROOM_HEIGHT - PLAYER_SIZE / 2)
+    );
+
+    const resolved = current.clone();
+    if (this.canStandAt(next.x, resolved.y)) {
+      resolved.x = next.x;
+    }
+    if (this.canStandAt(resolved.x, next.y)) {
+      resolved.y = next.y;
+    }
+
+    return resolved;
+  }
+
+  private canStandAt(x: number, y: number): boolean {
+    const halfSize = PLAYER_SIZE / 2;
+    const overlapsRiver = x + halfSize > RIVER_LEFT && x - halfSize < RIVER_RIGHT;
+    if (!overlapsRiver) {
+      return true;
+    }
+
+    return BRIDGES.some((bridge) => y - halfSize >= bridge.y && y + halfSize <= bridge.y + bridge.height);
+  }
+
   private fireProjectile(): void {
     this.projectileCooldownElapsed = 0;
 
@@ -417,15 +461,11 @@ export class GameScene extends Phaser.Scene {
 
     projectile.hitPlayerIds.add(this.localPlayerId);
     const knockback = projectile.velocity.clone().normalize().scale(PROJECTILE_KNOCKBACK_DISTANCE);
-    this.localPosition.x = Phaser.Math.Clamp(
-      this.localPosition.x + knockback.x,
-      PLAYER_SIZE / 2,
-      ROOM_WIDTH - PLAYER_SIZE / 2
-    );
-    this.localPosition.y = Phaser.Math.Clamp(
-      this.localPosition.y + knockback.y,
-      PLAYER_SIZE / 2,
-      ROOM_HEIGHT - PLAYER_SIZE / 2
+    this.localPosition.copy(
+      this.resolvePlayerPosition(
+        this.localPosition,
+        new Phaser.Math.Vector2(this.localPosition.x + knockback.x, this.localPosition.y + knockback.y)
+      )
     );
     this.movePlayerSprite(this.localPlayerId, this.localPosition.x, this.localPosition.y);
     this.socket?.emit('player:knockback', {
