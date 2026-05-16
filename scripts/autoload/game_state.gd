@@ -12,7 +12,8 @@ var character_color: Color = Color("#d95f5f")
 const SHARED_ROOM := "main"
 const CHARACTERS := [
 	{"id": "char_01", "name": "Character 1", "color": "#d95f5f"},
-	{"id": "char_02", "name": "Character 2", "color": "#e6a84f"}
+	{"id": "char_02", "name": "Character 2", "color": "#e6a84f"},
+	{"id": "char_03", "name": "Character 3", "color": "#d6c45b"}
 ]
 
 func configure_session(new_player_name: String, new_character_id: String) -> void:

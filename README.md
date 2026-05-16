@@ -1,6 +1,6 @@
 # Parish Simulator
 
-Godot 4.x MVP for a browser-first 2D pixel-art multiplayer prototype. The current goal is a small original cozy test meadow where players join one shared world, choose from 2 placeholder characters, move around, see each other, and interact with a few simple objects.
+Godot 4.x MVP for a browser-first 2D pixel-art multiplayer prototype. The current goal is a small original cozy test meadow where players join one shared world, choose from 3 placeholder characters, move around, see each other, and interact with a few simple objects.
 
 The project keeps the existing deployment shape:
 
@@ -119,7 +119,7 @@ Do not push to `testing` or `main` until explicitly deciding that stage is ready
 
 - Game starts from main menu.
 - Player can enter name.
-- Player can select one of 2 placeholder characters.
+- Player can select one of 3 placeholder characters.
 - Player spawns into map.
 - WASD movement works.
 - Arrow movement works.

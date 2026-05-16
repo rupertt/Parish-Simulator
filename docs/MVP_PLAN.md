@@ -7,7 +7,7 @@ Build a browser-first Godot MVP for an original cozy multiplayer top-down game. 
 ## Implemented Now
 
 - Godot 4.x project scaffold with Compatibility renderer settings.
-- Main menu with player name and 2 placeholder character choices.
+- Main menu with player name and 3 placeholder character choices.
 - Single playable test meadow.
 - Local top-down 4-direction movement with WASD and arrow keys.
 - Pixel-friendly placeholder player visuals and walking bob animation.

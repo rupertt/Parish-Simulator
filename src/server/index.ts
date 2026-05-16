@@ -19,7 +19,8 @@ const SHARED_ROOM = 'main';
 type Direction = 'down' | 'up' | 'left' | 'right';
 type CharacterId =
   | 'char_01'
-  | 'char_02';
+  | 'char_02'
+  | 'char_03';
 
 type Player = {
   id: string;
@@ -64,7 +65,8 @@ const wss = new WebSocketServer({ server, path: '/ws' });
 const clients = new Map<string, ClientState>();
 const characters: Record<CharacterId, { color: string }> = {
   char_01: { color: '#d95f5f' },
-  char_02: { color: '#e6a84f' }
+  char_02: { color: '#e6a84f' },
+  char_03: { color: '#d6c45b' }
 };
 
 const __filename = fileURLToPath(import.meta.url);
