@@ -22,10 +22,20 @@ func _build_character_list() -> void:
 
 	for character in GameState.CHARACTERS:
 		var button := Button.new()
-		button.custom_minimum_size = Vector2(88, 32)
-		button.text = character["name"]
+		button.custom_minimum_size = Vector2(68, 68)
+		button.icon = load(String(character["texture"]))
+		button.expand_icon = true
+		button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		button.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+		button.flat = false
+		button.text = ""
 		button.toggle_mode = true
-		button.modulate = Color(character["color"])
+		button.tooltip_text = character["name"]
+		button.add_theme_constant_override("icon_max_width", 56)
+		button.add_theme_stylebox_override("normal", _make_character_style(Color.TRANSPARENT, Color.TRANSPARENT, 0))
+		button.add_theme_stylebox_override("hover", _make_character_style(Color("#ffffff14"), Color("#ffffff33"), 1))
+		button.add_theme_stylebox_override("pressed", _make_character_style(Color("#d7f5ff3f"), Color("#d7f5ff"), 3))
+		button.add_theme_stylebox_override("focus", _make_character_style(Color.TRANSPARENT, Color("#d7f5ff"), 2))
 		button.pressed.connect(_select_character.bind(character["id"]))
 		character_grid.add_child(button)
 		_buttons.append(button)
@@ -40,3 +50,15 @@ func _select_character(character_id: String) -> void:
 
 func _on_enter_button_pressed() -> void:
 	join_requested.emit(name_input.text, selected_character_id)
+
+func _make_character_style(fill: Color, border: Color, border_width: int) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = border
+	style.set_border_width_all(border_width)
+	style.set_corner_radius_all(0)
+	style.content_margin_left = 6
+	style.content_margin_top = 6
+	style.content_margin_right = 6
+	style.content_margin_bottom = 6
+	return style

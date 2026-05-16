@@ -14,8 +14,11 @@ These instructions apply to this repository.
 
 - Local first: every new change should be made and validated locally.
 - Do not push anything to `main`.
+- Local changes may be built, tested, and run locally without asking.
+- Do not deploy to Cloud Run, production, or any hosted environment unless explicitly requested.
+- Treat generated export files as local artifacts unless the user asks for deployment.
 - Testing next: only push to `testing` when the user explicitly asks to push to testing.
-- Production last: never push to `main` or production unless the user explicitly asks to push to production.
+- Production last: never deploy or release to production unless the user explicitly asks for production release work.
 - Do not merge `testing` into `main` without explicit user approval.
 
 ## Required Validation
@@ -60,9 +63,16 @@ The `.gz` files are required for Cloud Run because the Godot `.wasm` file is too
 
 - Preserve user changes. Do not reset, checkout, or discard unrelated work.
 - Commit only when requested or when pushing is requested.
+- Default working branch should be `testing` or a feature branch, never `main`.
+- If currently on `main`, create or switch to a non-`main` branch before making changes.
 - Keep all new work local by default; do not push unless the user explicitly requests a push.
-- Keep `main` untouched unless production is explicitly requested.
+- `main` is protected production history.
+- Keep `main` untouched unless the user explicitly requests production release work.
 - Never push directly to `main`.
+- Do not merge, rebase, or fast-forward `main` unless the user explicitly requests production release work.
+- Before any push, state the branch, remote, and exact command that will be run.
+- Push only the named branch the user requested.
+- Never use `git push --all` or `git push --mirror`.
 - If pushing to testing, confirm the current branch is `testing`, commit there, and push only `origin testing`.
 
 ## Documentation Rules

@@ -28,9 +28,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -190.0
-offset_top = -132.0
+offset_top = -180.0
 offset_right = 190.0
-offset_bottom = 132.0
+offset_bottom = 180.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -64,12 +64,12 @@ horizontal_alignment = 1
 [node name="CharacterGrid" type="GridContainer" parent="Panel/Margin/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
-columns = 2
+columns = 5
 
 [node name="SelectedLabel" type="Label" parent="Panel/Margin/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Selected: Character 1"
+text = "Selected: Vicar"
 horizontal_alignment = 1
 
 [node name="EnterButton" type="Button" parent="Panel/Margin/Rows"]
