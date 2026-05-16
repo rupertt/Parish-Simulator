@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import type { Player, PlayerState } from '../../shared/types';
+import type { Player, PlayerState, Projectile } from '../../shared/types';
 import { getSocket, type GameSocket } from '../network/socket';
 
 const ROOM_WIDTH = 800;
@@ -7,21 +7,38 @@ const ROOM_HEIGHT = 600;
 const PLAYER_SIZE = 24;
 const PLAYER_SPEED = 180;
 const MOVE_SEND_INTERVAL_MS = 1000 / 30;
+const PROJECTILE_SIZE = 6;
+const PROJECTILE_SPEED = 380;
+const PROJECTILE_LIFETIME_MS = 5000;
+const PROJECTILE_COOLDOWN_MS = 250;
+const PROJECTILE_KNOCKBACK_DISTANCE = 72;
 
 type PlayerSprite = {
   body: Phaser.GameObjects.Shape;
   label: Phaser.GameObjects.Text;
 };
 
+type ProjectileSprite = {
+  body: Phaser.GameObjects.Arc;
+  ownerId: string;
+  velocity: Phaser.Math.Vector2;
+  remainingMs: number;
+  hitPlayerIds: Set<string>;
+};
+
 export class GameScene extends Phaser.Scene {
   private socket?: GameSocket;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
   private keys?: Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
+  private fireKey?: Phaser.Input.Keyboard.Key;
   private playerSprites = new Map<string, PlayerSprite>();
+  private projectileSprites = new Map<string, ProjectileSprite>();
   private localPlayerId = '';
   private localPosition = new Phaser.Math.Vector2(ROOM_WIDTH / 2, ROOM_HEIGHT / 2);
   private lastSentPosition = new Phaser.Math.Vector2(-1, -1);
+  private lastFacing = new Phaser.Math.Vector2(1, 0);
   private moveSendElapsed = 0;
+  private projectileCooldownElapsed = PROJECTILE_COOLDOWN_MS;
 
   constructor() {
     super('GameScene');
@@ -33,7 +50,7 @@ export class GameScene extends Phaser.Scene {
     this.socket = getSocket();
 
     this.add
-      .text(16, 14, 'WASD to move - share your host IP with friends on the same network', {
+      .text(16, 14, 'WASD to move - Space to fire - share your host IP with friends on the same network', {
         fontFamily: 'monospace',
         fontSize: '14px',
         color: '#d1d5db'
@@ -45,6 +62,7 @@ export class GameScene extends Phaser.Scene {
       'W' | 'A' | 'S' | 'D',
       Phaser.Input.Keyboard.Key
     >;
+    this.fireKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.localPlayerId = this.socket.id ?? '';
 
     this.socket.on('connect', () => {
@@ -68,9 +86,16 @@ export class GameScene extends Phaser.Scene {
     this.socket.on('player:left', (id) => {
       this.removePlayer(id);
     });
+
+    this.socket.on('projectile:spawn', (projectile) => {
+      this.spawnProjectile(projectile);
+    });
   }
 
   update(_time: number, delta: number): void {
+    this.updateProjectiles(delta);
+    this.projectileCooldownElapsed += delta;
+
     if (!this.localPlayerId || !this.keys) {
       return;
     }
@@ -89,35 +114,43 @@ export class GameScene extends Phaser.Scene {
       move.x += 1;
     }
 
-    if (move.lengthSq() === 0) {
-      return;
+    if (move.lengthSq() > 0) {
+      move.normalize();
+      this.lastFacing.copy(move);
+      move.scale(PLAYER_SPEED * (delta / 1000));
+      this.localPosition.x = Phaser.Math.Clamp(
+        this.localPosition.x + move.x,
+        PLAYER_SIZE / 2,
+        ROOM_WIDTH - PLAYER_SIZE / 2
+      );
+      this.localPosition.y = Phaser.Math.Clamp(
+        this.localPosition.y + move.y,
+        PLAYER_SIZE / 2,
+        ROOM_HEIGHT - PLAYER_SIZE / 2
+      );
+
+      this.movePlayerSprite(this.localPlayerId, this.localPosition.x, this.localPosition.y);
+      this.moveSendElapsed += delta;
+
+      if (
+        this.moveSendElapsed >= MOVE_SEND_INTERVAL_MS ||
+        Phaser.Math.Distance.BetweenPoints(this.localPosition, this.lastSentPosition) >= PLAYER_SIZE / 2
+      ) {
+        this.moveSendElapsed = 0;
+        this.lastSentPosition.copy(this.localPosition);
+        this.socket?.emit('player:move', {
+          x: this.localPosition.x,
+          y: this.localPosition.y
+        });
+      }
     }
 
-    move.normalize().scale(PLAYER_SPEED * (delta / 1000));
-    this.localPosition.x = Phaser.Math.Clamp(
-      this.localPosition.x + move.x,
-      PLAYER_SIZE / 2,
-      ROOM_WIDTH - PLAYER_SIZE / 2
-    );
-    this.localPosition.y = Phaser.Math.Clamp(
-      this.localPosition.y + move.y,
-      PLAYER_SIZE / 2,
-      ROOM_HEIGHT - PLAYER_SIZE / 2
-    );
-
-    this.movePlayerSprite(this.localPlayerId, this.localPosition.x, this.localPosition.y);
-    this.moveSendElapsed += delta;
-
     if (
-      this.moveSendElapsed >= MOVE_SEND_INTERVAL_MS ||
-      Phaser.Math.Distance.BetweenPoints(this.localPosition, this.lastSentPosition) >= PLAYER_SIZE / 2
+      this.fireKey &&
+      Phaser.Input.Keyboard.JustDown(this.fireKey) &&
+      this.projectileCooldownElapsed >= PROJECTILE_COOLDOWN_MS
     ) {
-      this.moveSendElapsed = 0;
-      this.lastSentPosition.copy(this.localPosition);
-      this.socket?.emit('player:move', {
-        x: this.localPosition.x,
-        y: this.localPosition.y
-      });
+      this.fireProjectile();
     }
   }
 
@@ -225,6 +258,106 @@ export class GameScene extends Phaser.Scene {
     if (id === this.localPlayerId) {
       this.localPosition.set(x, y);
     }
+  }
+
+  private fireProjectile(): void {
+    this.projectileCooldownElapsed = 0;
+
+    const spawnOffset = PLAYER_SIZE / 2 + PROJECTILE_SIZE + 2;
+    this.socket?.emit('projectile:fire', {
+      x: this.localPosition.x + this.lastFacing.x * spawnOffset,
+      y: this.localPosition.y + this.lastFacing.y * spawnOffset,
+      directionX: this.lastFacing.x,
+      directionY: this.lastFacing.y
+    });
+  }
+
+  private spawnProjectile(projectile: Projectile): void {
+    const existingProjectile = this.projectileSprites.get(projectile.id);
+    if (existingProjectile) {
+      existingProjectile.body.destroy();
+      this.projectileSprites.delete(projectile.id);
+    }
+
+    const color = Phaser.Display.Color.HexStringToColor(projectile.color).color;
+    const body = this.add
+      .circle(projectile.x, projectile.y, PROJECTILE_SIZE, color)
+      .setStrokeStyle(2, 0xfef3c7)
+      .setDepth(4);
+
+    this.projectileSprites.set(projectile.id, {
+      body,
+      ownerId: projectile.ownerId,
+      velocity: new Phaser.Math.Vector2(projectile.directionX, projectile.directionY).scale(PROJECTILE_SPEED),
+      remainingMs: PROJECTILE_LIFETIME_MS,
+      hitPlayerIds: new Set()
+    });
+  }
+
+  private updateProjectiles(delta: number): void {
+    for (const [id, projectile] of this.projectileSprites) {
+      projectile.remainingMs -= delta;
+      projectile.body.x += projectile.velocity.x * (delta / 1000);
+      projectile.body.y += projectile.velocity.y * (delta / 1000);
+
+      if (projectile.body.x <= PROJECTILE_SIZE || projectile.body.x >= ROOM_WIDTH - PROJECTILE_SIZE) {
+        projectile.body.x = Phaser.Math.Clamp(projectile.body.x, PROJECTILE_SIZE, ROOM_WIDTH - PROJECTILE_SIZE);
+        projectile.velocity.x *= -1;
+      }
+
+      if (projectile.body.y <= PROJECTILE_SIZE || projectile.body.y >= ROOM_HEIGHT - PROJECTILE_SIZE) {
+        projectile.body.y = Phaser.Math.Clamp(projectile.body.y, PROJECTILE_SIZE, ROOM_HEIGHT - PROJECTILE_SIZE);
+        projectile.velocity.y *= -1;
+      }
+
+      this.handleProjectilePlayerHit(projectile);
+
+      if (projectile.remainingMs <= 0) {
+        projectile.body.destroy();
+        this.projectileSprites.delete(id);
+      }
+    }
+  }
+
+  private handleProjectilePlayerHit(projectile: ProjectileSprite): void {
+    if (
+      !this.localPlayerId ||
+      projectile.ownerId === this.localPlayerId ||
+      projectile.hitPlayerIds.has(this.localPlayerId)
+    ) {
+      return;
+    }
+
+    const distanceToLocalPlayer = Phaser.Math.Distance.Between(
+      projectile.body.x,
+      projectile.body.y,
+      this.localPosition.x,
+      this.localPosition.y
+    );
+
+    if (distanceToLocalPlayer > PLAYER_SIZE / 2 + PROJECTILE_SIZE) {
+      return;
+    }
+
+    projectile.hitPlayerIds.add(this.localPlayerId);
+    const knockback = projectile.velocity.clone().normalize().scale(PROJECTILE_KNOCKBACK_DISTANCE);
+    this.localPosition.x = Phaser.Math.Clamp(
+      this.localPosition.x + knockback.x,
+      PLAYER_SIZE / 2,
+      ROOM_WIDTH - PLAYER_SIZE / 2
+    );
+    this.localPosition.y = Phaser.Math.Clamp(
+      this.localPosition.y + knockback.y,
+      PLAYER_SIZE / 2,
+      ROOM_HEIGHT - PLAYER_SIZE / 2
+    );
+    this.movePlayerSprite(this.localPlayerId, this.localPosition.x, this.localPosition.y);
+    this.lastSentPosition.copy(this.localPosition);
+    this.moveSendElapsed = 0;
+    this.socket?.emit('player:move', {
+      x: this.localPosition.x,
+      y: this.localPosition.y
+    });
   }
 
   private refreshLocalPosition(): void {

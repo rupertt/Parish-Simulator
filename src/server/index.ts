@@ -3,12 +3,13 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Server } from 'socket.io';
-import type { Player, PlayerMove, PlayerProfile, PlayerShape, PlayerState } from '../shared/types';
+import type { Player, PlayerMove, PlayerProfile, PlayerShape, PlayerState, ProjectileFire } from '../shared/types';
 
 const PORT = Number(process.env.PORT) || 3000;
 const ROOM_WIDTH = 800;
 const ROOM_HEIGHT = 600;
 const PLAYER_SIZE = 24;
+const MAX_PROJECTILE_OFFSET = PLAYER_SIZE * 2;
 
 const app = express();
 const server = http.createServer(app);
@@ -45,6 +46,33 @@ function clampMove(move: PlayerMove): PlayerMove {
   return {
     x: clamp(move.x, PLAYER_SIZE / 2, ROOM_WIDTH - PLAYER_SIZE / 2),
     y: clamp(move.y, PLAYER_SIZE / 2, ROOM_HEIGHT - PLAYER_SIZE / 2)
+  };
+}
+
+function normalizeProjectileFire(fire: ProjectileFire, player: Player): ProjectileFire | undefined {
+  const direction = {
+    x: Number.isFinite(fire.directionX) ? fire.directionX : 0,
+    y: Number.isFinite(fire.directionY) ? fire.directionY : 0
+  };
+  const length = Math.hypot(direction.x, direction.y);
+
+  if (length === 0) {
+    return undefined;
+  }
+
+  return {
+    x: clamp(
+      Number.isFinite(fire.x) && Math.abs(fire.x - player.x) <= MAX_PROJECTILE_OFFSET ? fire.x : player.x,
+      PLAYER_SIZE / 2,
+      ROOM_WIDTH - PLAYER_SIZE / 2
+    ),
+    y: clamp(
+      Number.isFinite(fire.y) && Math.abs(fire.y - player.y) <= MAX_PROJECTILE_OFFSET ? fire.y : player.y,
+      PLAYER_SIZE / 2,
+      ROOM_HEIGHT - PLAYER_SIZE / 2
+    ),
+    directionX: direction.x / length,
+    directionY: direction.y / length
   };
 }
 
@@ -92,6 +120,26 @@ io.on('connection', (socket) => {
     existingPlayer.x = clampedMove.x;
     existingPlayer.y = clampedMove.y;
     io.emit('player:move', existingPlayer);
+  });
+
+  socket.on('projectile:fire', (fire: ProjectileFire) => {
+    const existingPlayer = players[socket.id];
+    if (!existingPlayer) {
+      return;
+    }
+
+    const projectileFire = normalizeProjectileFire(fire, existingPlayer);
+    if (!projectileFire) {
+      return;
+    }
+
+    io.emit('projectile:spawn', {
+      ...projectileFire,
+      id: `${socket.id}:${Date.now()}`,
+      ownerId: socket.id,
+      color: existingPlayer.color,
+      createdAt: Date.now()
+    });
   });
 
   socket.on('disconnect', () => {
