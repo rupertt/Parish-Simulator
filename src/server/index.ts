@@ -10,6 +10,15 @@ const ROOM_WIDTH = 800;
 const ROOM_HEIGHT = 600;
 const PLAYER_SIZE = 24;
 const MAX_PROJECTILE_OFFSET = PLAYER_SIZE * 2;
+const RIVER_LEFT = ROOM_WIDTH / 2 - 48;
+const RIVER_WIDTH = 96;
+const RIVER_RIGHT = RIVER_LEFT + RIVER_WIDTH;
+const BRIDGE_HEIGHT = 64;
+const BRIDGES = [
+  { y: 96, height: BRIDGE_HEIGHT },
+  { y: ROOM_HEIGHT / 2 - BRIDGE_HEIGHT / 2, height: BRIDGE_HEIGHT },
+  { y: ROOM_HEIGHT - 96 - BRIDGE_HEIGHT, height: BRIDGE_HEIGHT }
+];
 
 const app = express();
 const server = http.createServer(app);
@@ -42,11 +51,34 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-function clampMove(move: PlayerMove): PlayerMove {
-  return {
+function clampMove(move: PlayerMove, currentPlayer?: Player): PlayerMove {
+  const requested = {
     x: clamp(move.x, PLAYER_SIZE / 2, ROOM_WIDTH - PLAYER_SIZE / 2),
     y: clamp(move.y, PLAYER_SIZE / 2, ROOM_HEIGHT - PLAYER_SIZE / 2)
   };
+  if (!currentPlayer) {
+    return requested;
+  }
+
+  const resolved = { x: currentPlayer.x, y: currentPlayer.y };
+  if (canStandAt(requested.x, resolved.y)) {
+    resolved.x = requested.x;
+  }
+  if (canStandAt(resolved.x, requested.y)) {
+    resolved.y = requested.y;
+  }
+
+  return resolved;
+}
+
+function canStandAt(x: number, y: number): boolean {
+  const halfSize = PLAYER_SIZE / 2;
+  const overlapsRiver = x + halfSize > RIVER_LEFT && x - halfSize < RIVER_RIGHT;
+  if (!overlapsRiver) {
+    return true;
+  }
+
+  return BRIDGES.some((bridge) => y - halfSize >= bridge.y && y + halfSize <= bridge.y + bridge.height);
 }
 
 function normalizeProjectileFire(fire: ProjectileFire, player: Player): ProjectileFire | undefined {
@@ -116,7 +148,7 @@ io.on('connection', (socket) => {
       return;
     }
 
-    const clampedMove = clampMove(move);
+    const clampedMove = clampMove(move, existingPlayer);
     existingPlayer.x = clampedMove.x;
     existingPlayer.y = clampedMove.y;
     io.emit('player:move', existingPlayer);
