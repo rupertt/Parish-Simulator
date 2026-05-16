@@ -1,0 +1,122 @@
+[gd_scene load_steps=10 format=3 uid="uid://test_meadow"]
+
+[ext_resource type="Script" path="res://scripts/world/test_meadow.gd" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/player/LocalPlayer.tscn" id="2_local"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/Interactable.tscn" id="3_interactable"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="4_hud"]
+
+[sub_resource type="RectangleShape2D" id="BoundaryHorizontal"]
+size = Vector2(768, 24)
+
+[sub_resource type="RectangleShape2D" id="BoundaryVertical"]
+size = Vector2(24, 432)
+
+[sub_resource type="RectangleShape2D" id="TableShape"]
+size = Vector2(48, 24)
+
+[sub_resource type="RectangleShape2D" id="TreeShape"]
+size = Vector2(24, 28)
+
+[sub_resource type="RectangleShape2D" id="DoorShape"]
+size = Vector2(28, 20)
+
+[node name="TestMeadow" type="Node2D"]
+script = ExtResource("1_world")
+
+[node name="GroundLayer" type="Node2D" parent="."]
+
+[node name="ObjectLayer" type="Node2D" parent="."]
+
+[node name="NorthBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/NorthBoundary"]
+position = Vector2(384, 12)
+shape = SubResource("BoundaryHorizontal")
+
+[node name="SouthBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/SouthBoundary"]
+position = Vector2(384, 420)
+shape = SubResource("BoundaryHorizontal")
+
+[node name="WestBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/WestBoundary"]
+position = Vector2(12, 216)
+shape = SubResource("BoundaryVertical")
+
+[node name="EastBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/EastBoundary"]
+position = Vector2(756, 216)
+shape = SubResource("BoundaryVertical")
+
+[node name="TableBlocker" type="StaticBody2D" parent="ObjectLayer"]
+position = Vector2(360, 210)
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/TableBlocker"]
+shape = SubResource("TableShape")
+
+[node name="TreeBlocker" type="StaticBody2D" parent="ObjectLayer"]
+position = Vector2(572, 130)
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/TreeBlocker"]
+shape = SubResource("TreeShape")
+
+[node name="DoorBlocker" type="StaticBody2D" parent="ObjectLayer"]
+position = Vector2(80, 92)
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/DoorBlocker"]
+shape = SubResource("DoorShape")
+
+[node name="Interactables" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="Sign" parent="Interactables" instance=ExtResource("3_interactable")]
+position = Vector2(180, 132)
+prompt_text = "Press E to read"
+message_text = "A hand-painted sign: Welcome to the first local test meadow."
+object_color = Color(0.847, 0.710, 0.427, 1)
+
+[node name="Table" parent="Interactables" instance=ExtResource("3_interactable")]
+position = Vector2(360, 178)
+prompt_text = "Press E to inspect"
+message_text = "The table gives a tiny wobble. Decoration systems come later."
+object_color = Color(0.604, 0.388, 0.251, 1)
+
+[node name="Door" parent="Interactables" instance=ExtResource("3_interactable")]
+position = Vector2(80, 62)
+prompt_text = "Press E to use door"
+message_text = "Coming soon."
+object_color = Color(0.400, 0.275, 0.188, 1)
+
+[node name="RemotePlayers" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="LocalPlayer" parent="." instance=ExtResource("2_local")]
+unique_name_in_owner = true
+position = Vector2(160, 216)
+
+[node name="Camera2D" type="Camera2D" parent="LocalPlayer"]
+unique_name_in_owner = true
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+
+[node name="AbovePlayerLayer" type="Node2D" parent="."]
+
+[node name="HUD" parent="." instance=ExtResource("4_hud")]
+unique_name_in_owner = true

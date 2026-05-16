@@ -2,6 +2,9 @@ node_modules
 dist
 .git
 .github
+.godot
+.tools
+export_presets.cfg
 *.log
 npm-debug.log*
 yarn-debug.log*

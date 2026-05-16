@@ -1,17 +1,30 @@
 # GCP Deployment
 
-This project deploys to Google Cloud Run with two services:
+The current infrastructure deploys the Node WebSocket/static server to Google Cloud Run.
+
+Branch gates:
+
+- Local: feature branch and local machine only.
+- Testing: push or merge to `testing`.
+- Production: push or merge to `main`.
+
+Do not move to testing or production until explicitly deciding to do so.
+
+## Services
 
 - Production: `main` branch -> `parish-simulator`
 - Testing: `testing` branch -> `parish-simulator-testing`
 
-Use the production Cloud Run URL as the single public entry point:
+The Node service serves files from `web-export/` and exposes the WebSocket endpoint at `/ws`.
 
-```text
-https://parish-simulator-871930190013.us-central1.run.app
-```
+## Before Deploying
 
-Players choose Production or Testing from that first screen. The testing service has a separate Cloud Run URL because it runs a separate backend, but players should not need to know it.
+1. Run the Godot project locally.
+2. Run the Node server locally.
+3. Export the Godot Web build into `web-export/`.
+4. Run `npm run typecheck`.
+5. Run `npm run start` and test `http://localhost:3000`.
+6. Commit the Godot project and the updated web export.
 
 ## One-Time GCP Setup
 
@@ -23,13 +36,13 @@ gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregi
 gcloud artifacts repositories create parish-simulator --repository-format=docker --location=us-central1
 ```
 
-Cloud Build needs permission to deploy Cloud Run services and write images. In the Google Cloud console, grant the Cloud Build service account these roles:
+Cloud Build needs:
 
 - Cloud Run Admin
 - Artifact Registry Writer
 - Service Account User
 
-## Create Cloud Build Triggers
+## Cloud Build Triggers
 
 Create two GitHub push triggers for `rupertt/Parish-Simulator`.
 
@@ -55,19 +68,9 @@ Create two GitHub push triggers for `rupertt/Parish-Simulator`.
   - `_REGION=us-central1`
   - `_ARTIFACT_REPOSITORY=parish-simulator`
 
-## Version Links
+## Runtime Notes
 
-After the first deploy, Cloud Run will show each service URL.
-
-Update both Cloud Build triggers with:
-
-- `_PRODUCTION_URL=<production run.app URL>`
-- `_TESTING_URL=<testing run.app URL>`
-
-Then run both triggers again. The app's first screen on the production URL will let players choose Production or Testing.
-
-## Notes
-
-- `--max-instances=1` is intentional for now because live game state is stored in memory.
-- If the game later needs multiple instances, add shared state such as Redis or a real game-state service.
-- WebSocket connections on Cloud Run are still subject to request timeouts, so clients should expect reconnects.
+- `--max-instances=1` is still intentional because shared-world state is in memory.
+- Multiple instances require shared world state such as Redis or a dedicated game-state service.
+- Cloud Run WebSockets can be interrupted by request timeouts; clients should reconnect in a later iteration.
+- Production pages served over HTTPS must use `wss://` for WebSocket connections.

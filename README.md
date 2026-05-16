@@ -1,14 +1,18 @@
-# Local Multiplayer Pixel Prototype
+# Parish Simulator
 
-A small GitHub-ready TypeScript game prototype using Phaser 3, Node.js, Express, Socket.IO, and Vite.
+Godot 4.x MVP for a browser-first 2D pixel-art multiplayer prototype. The current goal is a small original cozy test meadow where players join one shared world, choose from 2 placeholder characters, move around, see each other, and interact with a few simple objects.
 
-The first version is intentionally simple: one person hosts a local server, friends on the same Wi-Fi/network join from a browser, and everyone appears in one shared room. Players move with WASD and movement syncs in real time.
+The project keeps the existing deployment shape:
+
+- Run locally first.
+- Push to the `testing` branch only when ready for testing.
+- Push to `main` only when ready for production.
 
 ## Requirements
 
-- Node.js
-- npm
-- Git
+- Godot 4.2 or newer, using GDScript.
+- Node.js 20+ and npm for the WebSocket backend.
+- Git.
 
 ## Install
 
@@ -18,121 +22,126 @@ npm install
 
 ## Run Locally
 
+Start the local WebSocket/static server:
+
 ```bash
 npm run dev
 ```
 
-This starts:
+Open the repo in Godot, press Play, enter a player name, choose a placeholder character, and enter the world.
 
-- Express and Socket.IO on `http://localhost:3000`
-- Vite client on `http://localhost:5173`
-
-Open `http://localhost:5173` on the host computer.
-
-## Build
-
-```bash
-npm run build
-```
-
-## Start Built Local Server
-
-```bash
-npm run start
-```
-
-After running `npm run build`, this serves the built game from `http://localhost:3000`.
-
-## How the Host Finds Their Local IP Address
-
-On Windows PowerShell:
-
-```powershell
-ipconfig
-```
-
-Look for the `IPv4 Address` under the active Wi-Fi or Ethernet adapter. It often looks like `192.168.1.25`.
-
-On macOS or Linux:
-
-```bash
-ifconfig
-```
-
-or:
-
-```bash
-ip addr
-```
-
-## How Friends Join
-
-Everyone must be on the same local network as the host.
-
-During development, friends can open:
+The browser export automatically connects to the server hosting the page. In the Godot editor, the fallback server is:
 
 ```text
-http://HOST_LOCAL_IP:5173
+ws://localhost:3000/ws
 ```
 
-Example:
+Everyone connects to the same shared world for now. Room selection is intentionally deferred.
+
+## Browser Export
+
+In Godot:
+
+1. Use the Compatibility renderer.
+2. Add a Web export preset.
+3. Export into `web-export/`, replacing the placeholder `index.html`.
+4. Run `npm run start`.
+5. Open `http://localhost:3000`.
+
+## Project Structure
 
 ```text
-http://192.168.1.25:5173
+res://
+  scenes/
+    main/
+    ui/
+    player/
+    world/
+    networking/
+    interactables/
+  scripts/
+    player/
+    world/
+    networking/
+    ui/
+    interactables/
+    autoload/
+  assets/
+    art/
+    audio/
+    fonts/
+  resources/
+  docs/
 ```
 
-The development server proxies multiplayer traffic through the same address, so friends should only need the `5173` URL while you are running `npm run dev`.
-
-After a production build with `npm run build` and `npm run start`, friends can open:
-
-```text
-http://HOST_LOCAL_IP:3000
-```
-
-## Troubleshooting
-
-- Everyone must be on the same Wi-Fi/network.
-- Windows Firewall may ask whether to allow Node.js. Allow access for private networks.
-- If a port is already in use, stop the other app or change the port in the scripts/server config.
-- If friends can load the page but do not see movement, restart `npm run dev` and confirm the backend says `Server listening on http://localhost:3000`.
-
-## Basic GitHub Workflow
-
-Initial setup:
+## Development Workflow
 
 ```bash
-git init
+git checkout -b feature/local-mvp-change
+npm run typecheck
 git add .
-git commit -m "Initial multiplayer prototype scaffold"
-git branch -M main
-git remote add origin YOUR_GITHUB_REPO_URL
-git push -u origin main
+git commit -m "Build Godot multiplayer MVP scaffold"
+git push -u origin feature/local-mvp-change
 ```
 
-Normal change workflow:
+Open a pull request before merging.
+
+Recommended initial milestone commits:
+
+- `Replace Phaser prototype with Godot MVP scaffold`
+- `Add playable top-down movement and interactions`
+- `Add WebSocket multiplayer backend`
+- `Document web export and deployment workflow`
+
+## Testing And Production Workflow
+
+Local work happens on feature branches.
+
+Testing deploy:
 
 ```bash
-git checkout -b feature/my-change
-git add .
-git commit -m "Describe my change"
-git push -u origin feature/my-change
+git checkout testing
+git merge feature/local-mvp-change
+git push origin testing
 ```
 
-Then open a pull request on GitHub.
+Production deploy:
 
-## Cloud Deployment
-
-The project is prepared for Google Cloud Run with two branches:
-
-- `main` deploys the production service.
-- `testing` deploys the testing service.
-
-Share this single public entry URL with players:
-
-```text
-https://parish-simulator-871930190013.us-central1.run.app
+```bash
+git checkout main
+git merge testing
+git push origin main
 ```
 
-When players open that URL, they can choose Production or Testing before joining. The testing service has its own Cloud Run URL behind the scenes, but the production URL is the one to share.
+Do not push to `testing` or `main` until explicitly deciding that stage is ready.
 
-See [docs/DEPLOYMENT_GCP.md](docs/DEPLOYMENT_GCP.md) for the Cloud Run and Cloud Build setup.
+## Manual Test Checklist
+
+- Game starts from main menu.
+- Player can enter name.
+- Player can select one of 2 placeholder characters.
+- Player spawns into map.
+- WASD movement works.
+- Arrow movement works.
+- Placeholder animation changes while walking.
+- Directional facing changes up, down, left, right.
+- Collision works against map boundaries and object blockers.
+- Camera follows player.
+- Interaction prompt appears near sign, table, and door.
+- E key triggers each interaction.
+- Multiple Godot clients or browser exports can connect to the same local world.
+- Remote players appear.
+- Remote movement updates.
+- Disconnect removes player.
+- F3 debug panel toggles.
+- Web export launches from local Node server.
+
+## Docs
+
+- [MVP Plan](docs/MVP_PLAN.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Networking](docs/NETWORKING.md)
+- [Art Pipeline](docs/ART_PIPELINE.md)
+- [Web Export](docs/WEB_EXPORT.md)
+- [Roadmap](docs/ROADMAP.md)
+- [GCP Deployment](docs/DEPLOYMENT_GCP.md)
