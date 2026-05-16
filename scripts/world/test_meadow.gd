@@ -62,6 +62,7 @@ func _on_local_input_changed(direction: Vector2, facing: String) -> void:
 func _on_network_connected(_client_id: String, players: Array) -> void:
 	PlayerRegistry.set_players(players)
 	_apply_players(players)
+	hud.show_message("Connected to the shared meadow.")
 
 func _on_snapshot_received(players: Array) -> void:
 	PlayerRegistry.set_players(players)
