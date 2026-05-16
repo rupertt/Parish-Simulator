@@ -8,6 +8,7 @@ signal join_requested(player_name: String, character_id: String)
 
 var selected_character_id := "char_01"
 var _buttons: Array[Button] = []
+var _selectable_characters: Array = []
 
 func _ready() -> void:
 	name_input.text = GameState.player_name
@@ -19,11 +20,12 @@ func _build_character_list() -> void:
 	for child in character_grid.get_children():
 		child.queue_free()
 	_buttons.clear()
+	_selectable_characters = GameState.get_selectable_characters()
 
-	for character in GameState.CHARACTERS:
+	for character in _selectable_characters:
 		var button := Button.new()
 		button.custom_minimum_size = Vector2(68, 68)
-		button.icon = load(String(character["texture"]))
+		button.icon = load(String(character["icon"]))
 		button.expand_icon = true
 		button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		button.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -44,7 +46,7 @@ func _select_character(character_id: String) -> void:
 	selected_character_id = character_id
 	GameState.select_character(character_id)
 	for index in _buttons.size():
-		var character: Dictionary = GameState.CHARACTERS[index]
+		var character: Dictionary = _selectable_characters[index]
 		_buttons[index].button_pressed = character["id"] == selected_character_id
 	selected_label.text = "Selected: %s" % GameState.character_name
 

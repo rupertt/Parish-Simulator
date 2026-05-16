@@ -1,42 +1,50 @@
 class_name RemotePlayer
 extends Node2D
 
-const CHARACTER_SCALE := 0.07
+const CHARACTER_SCALE := 0.18
+const WALK_BOB_AMOUNT := 0.7
 
 @onready var body: Polygon2D = %Body
 @onready var body_sprite: Sprite2D = %BodySprite
 
 var target_position := Vector2.ZERO
+var facing := "down"
+var moving := false
+var _animation_time := 0.0
+var _walk_animator := DirectionalWalkAnimator.new()
 
 func _process(delta: float) -> void:
 	position = position.lerp(target_position, min(delta * 12.0, 1.0))
+	if moving:
+		_animation_time += delta
+	_update_animation(moving)
 
 func apply_state(state: Dictionary) -> void:
 	target_position = Vector2(float(state.get("x", position.x)), float(state.get("y", position.y)))
 	body.modulate = Color(String(state.get("color", "#5d7fd8")))
+	facing = String(state.get("facing", "down"))
+	moving = bool(state.get("moving", false))
+
 	var character := GameState.get_character(String(state.get("characterId", "char_01")))
-	_apply_character_texture(String(character["texture"]))
+	_apply_character_animation(String(character["walk_sheet"]))
 
-	var facing := String(state.get("facing", "down"))
-	match facing:
-		"up":
-			body.scale = Vector2(0.92, 1.0)
-			body_sprite.scale = Vector2(CHARACTER_SCALE * 0.9, CHARACTER_SCALE)
-		"down":
-			body.scale = Vector2(1.0, 1.0)
-			body_sprite.scale = Vector2(CHARACTER_SCALE, CHARACTER_SCALE)
-		"left":
-			body.scale = Vector2(0.88, 1.0)
-			body_sprite.scale = Vector2(-CHARACTER_SCALE, CHARACTER_SCALE)
-		"right":
-			body.scale = Vector2(1.08, 1.0)
-			body_sprite.scale = Vector2(CHARACTER_SCALE, CHARACTER_SCALE)
+func _update_animation(is_moving: bool) -> void:
+	# Match the local player scale so every character reads clearly on the map.
+	body_sprite.scale = Vector2(CHARACTER_SCALE, CHARACTER_SCALE)
+	body_sprite.rotation = 0.0
 
-func _apply_character_texture(texture_path: String) -> void:
-	var texture := load(texture_path) as Texture2D
-	if texture:
-		body_sprite.texture = texture
-		body_sprite.scale = Vector2(CHARACTER_SCALE, CHARACTER_SCALE)
+	if is_moving:
+		body_sprite.texture = _walk_animator.get_walk_texture(facing, _animation_time)
+		var stride: float = sin(_animation_time * DirectionalWalkAnimator.FRAME_RATE * TAU / DirectionalWalkAnimator.FRAME_COUNT)
+		body_sprite.position = Vector2(0.0, -abs(stride) * WALK_BOB_AMOUNT)
+	else:
+		body_sprite.texture = _walk_animator.get_idle_texture(facing)
+		body_sprite.position = Vector2.ZERO
+
+func _apply_character_animation(walk_sheet_path: String) -> void:
+	# Remote players use the same sheet loading and frame logic as the local player.
+	if _walk_animator.load_sheet(walk_sheet_path):
+		body_sprite.texture = _walk_animator.get_idle_texture(facing)
 		body_sprite.visible = true
 		body.visible = false
 	else:

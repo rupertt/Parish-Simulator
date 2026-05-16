@@ -99,7 +99,7 @@ const MAP_COLLISION_SHAPES: MapCollisionShape[] = [
   { kind: 'polygon', points: [{ x: 0, y: 845 }, { x: 120, y: 820 }, { x: 160, y: 930 }, { x: 265, y: 1015 }, { x: 260, y: 1254 }, { x: 0, y: 1254 }] }
 ];
 
-type Direction = 'down' | 'up' | 'left' | 'right';
+type Direction = 'down' | 'up' | 'left' | 'right' | 'up_left' | 'up_right' | 'down_left' | 'down_right';
 type Point = {
   x: number;
   y: number;
@@ -118,7 +118,10 @@ type CharacterId =
   | 'char_07'
   | 'char_08'
   | 'char_09'
-  | 'char_10';
+  | 'char_10'
+  | 'char_11'
+  | 'char_12'
+  | 'char_13';
 
 type Player = {
   id: string;
@@ -171,7 +174,10 @@ const characters: Record<CharacterId, { color: string }> = {
   char_07: { color: '#c95757' },
   char_08: { color: '#8d6a4a' },
   char_09: { color: '#d6b94d' },
-  char_10: { color: '#7b8f67' }
+  char_10: { color: '#7b8f67' },
+  char_11: { color: '#5f7fd9' },
+  char_12: { color: '#b7b7c4' },
+  char_13: { color: '#7b6154' }
 };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -182,6 +188,13 @@ const compressedAssetTypes: Record<string, string> = {
   '.pck': 'application/octet-stream',
   '.wasm': 'application/wasm'
 };
+
+app.use((_req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  next();
+});
 
 app.get('/health', (_req, res) => {
   res.json({ ok: true, app: 'parish-simulator-godot-mvp' });
@@ -349,7 +362,10 @@ function normalizeInput(input: Partial<PlayerInput> | undefined): PlayerInput {
   const x = Number.isFinite(input?.x) ? clamp(Number(input?.x), -1, 1) : 0;
   const y = Number.isFinite(input?.y) ? clamp(Number(input?.y), -1, 1) : 0;
   const length = Math.hypot(x, y);
-  const facing = input?.facing && ['down', 'up', 'left', 'right'].includes(input.facing) ? input.facing : 'down';
+  const facing =
+    input?.facing && ['down', 'up', 'left', 'right', 'up_left', 'up_right', 'down_left', 'down_right'].includes(input.facing)
+      ? input.facing
+      : 'down';
 
   if (length === 0) {
     return { x: 0, y: 0, facing };
