@@ -20,7 +20,14 @@ type Direction = 'down' | 'up' | 'left' | 'right';
 type CharacterId =
   | 'char_01'
   | 'char_02'
-  | 'char_03';
+  | 'char_03'
+  | 'char_04'
+  | 'char_05'
+  | 'char_06'
+  | 'char_07'
+  | 'char_08'
+  | 'char_09'
+  | 'char_10';
 
 type Player = {
   id: string;
@@ -66,7 +73,14 @@ const clients = new Map<string, ClientState>();
 const characters: Record<CharacterId, { color: string }> = {
   char_01: { color: '#d95f5f' },
   char_02: { color: '#e6a84f' },
-  char_03: { color: '#d6c45b' }
+  char_03: { color: '#d79c5f' },
+  char_04: { color: '#df7aa8' },
+  char_05: { color: '#5f8fd9' },
+  char_06: { color: '#6d8bb8' },
+  char_07: { color: '#c95757' },
+  char_08: { color: '#8d6a4a' },
+  char_09: { color: '#d6b94d' },
+  char_10: { color: '#7b8f67' }
 };
 
 const __filename = fileURLToPath(import.meta.url);
