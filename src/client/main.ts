@@ -7,6 +7,7 @@ import type { PlayerProfile } from '../shared/types';
 
 const defaultColors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899'];
 const defaultNicknames = ['Bellringer', 'Lantern', 'Vestry', 'Candlewick', 'Parish Pal', 'Steeple'];
+const playPath = '/play';
 
 type AppConfig = {
   appEnv: 'production' | 'testing';
@@ -77,31 +78,42 @@ function normalizeUrl(url: string): string {
   return url.replace(/\/$/, '');
 }
 
-function versionButton(label: string, url: string, currentUrl: string, isCurrent: boolean): string {
+function isPlayPage(): boolean {
+  return normalizeUrl(window.location.pathname) === playPath;
+}
+
+function createPlayUrl(baseUrl: string, version: AppConfig['appEnv']): string {
+  const url = new URL(playPath, baseUrl || window.location.origin);
+  url.searchParams.set('version', version);
+  return url.toString();
+}
+
+function versionButton(label: string, url: string): string {
   const disabled = url ? '' : 'disabled';
-  const status = isCurrent ? '<span class="version-status">Current</span>' : '';
   const target = url || '';
 
   return `
     <button class="version-button" type="button" data-url="${escapeAttribute(target)}" ${disabled}>
       <span>${label}</span>
-      ${status}
     </button>
   `;
 }
 
 function askForVersion(config: AppConfig): Promise<void> {
-  const currentUrl = normalizeUrl(window.location.origin);
-  const productionUrl = normalizeUrl(config.productionUrl);
-  const testingUrl = normalizeUrl(config.testingUrl);
+  if (isPlayPage()) {
+    return Promise.resolve();
+  }
+
+  const productionUrl = createPlayUrl(normalizeUrl(config.productionUrl) || window.location.origin, 'production');
+  const testingUrl = config.testingUrl ? createPlayUrl(normalizeUrl(config.testingUrl), 'testing') : '';
   const overlay = document.createElement('div');
   overlay.className = 'join-overlay';
   overlay.innerHTML = `
     <div class="join-card version-card">
       <h1>Choose Version</h1>
       <div class="version-buttons">
-        ${versionButton('Production', productionUrl, currentUrl, productionUrl === currentUrl || config.appEnv === 'production')}
-        ${versionButton('Testing', testingUrl, currentUrl, testingUrl === currentUrl || config.appEnv === 'testing')}
+        ${versionButton('Production', productionUrl)}
+        ${versionButton('Testing', testingUrl)}
       </div>
     </div>
   `;
@@ -111,15 +123,10 @@ function askForVersion(config: AppConfig): Promise<void> {
   return new Promise((resolve) => {
     overlay.querySelectorAll<HTMLButtonElement>('.version-button').forEach((button) => {
       button.addEventListener('click', () => {
-        const targetUrl = normalizeUrl(button.dataset.url || '');
-        overlay.remove();
-
-        if (targetUrl && targetUrl !== currentUrl) {
-          window.location.href = targetUrl;
-          return;
+        const targetUrl = button.dataset.url || '';
+        if (targetUrl) {
+          window.location.assign(targetUrl);
         }
-
-        resolve();
       });
     });
   });

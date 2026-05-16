@@ -110,11 +110,6 @@ canvas {
   opacity: 0.45;
 }
 
-.version-status {
-  font-size: 12px;
-  color: #bbf7d0;
-}
-
 .join-card .nickname-button {
   padding: 0 12px;
   background: #334155;
