@@ -20,4 +20,18 @@ export type PlayerMove = {
   y: number;
 };
 
+export type ProjectileFire = {
+  x: number;
+  y: number;
+  directionX: number;
+  directionY: number;
+};
+
+export type Projectile = ProjectileFire & {
+  id: string;
+  ownerId: string;
+  color: string;
+  createdAt: number;
+};
+
 export type PlayerState = Record<string, Player>;
