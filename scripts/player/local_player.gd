@@ -10,6 +10,7 @@ const CHARACTER_SCALE := 0.07
 @onready var body_sprite: Sprite2D = %BodySprite
 
 var facing := "down"
+var controls_locked := false
 var _walk_time := 0.0
 var _last_direction := Vector2.ZERO
 
@@ -18,6 +19,13 @@ func _ready() -> void:
 	_apply_character_texture(GameState.character_texture_path)
 
 func _physics_process(delta: float) -> void:
+	if controls_locked:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		body_sprite.position.y = 0.0
+		_update_direction_color(false)
+		return
+
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	velocity = direction * SPEED
 	move_and_slide()
@@ -37,6 +45,24 @@ func _physics_process(delta: float) -> void:
 
 func is_local_player() -> bool:
 	return true
+
+func set_controls_locked(is_locked: bool) -> void:
+	controls_locked = is_locked
+	if is_locked:
+		velocity = Vector2.ZERO
+		_last_direction = Vector2.ZERO
+		input_changed.emit(Vector2.ZERO, facing)
+
+func face(direction_name: String) -> void:
+	match direction_name:
+		"up":
+			_update_facing(Vector2.UP)
+		"down":
+			_update_facing(Vector2.DOWN)
+		"left":
+			_update_facing(Vector2.LEFT)
+		"right":
+			_update_facing(Vector2.RIGHT)
 
 func _update_facing(direction: Vector2) -> void:
 	if abs(direction.x) > abs(direction.y):

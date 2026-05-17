@@ -186,6 +186,13 @@ const compressedAssetTypes: Record<string, string> = {
   '.wasm': 'application/wasm'
 };
 
+app.use((_req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  next();
+});
+
 app.get('/health', (_req, res) => {
   res.json({ ok: true, app: 'parish-simulator-godot-mvp' });
 });
@@ -311,8 +318,8 @@ function createPlayer(id: string, name: string, characterId: CharacterId): Playe
     room: SHARED_ROOM,
     name,
     characterId,
-    x: 420 + (roomCount % 5) * SPAWN_SPACING_X,
-    y: 650 + Math.floor(roomCount / 5) * SPAWN_SPACING_Y,
+    x: 650 + (roomCount % 5) * SPAWN_SPACING_X,
+    y: 635 + Math.floor(roomCount / 5) * SPAWN_SPACING_Y,
     color: characters[characterId].color,
     facing: 'down',
     moving: false

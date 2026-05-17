@@ -83,7 +83,7 @@ collision_mask = 2
 shape = SubResource("TreeShape")
 
 [node name="DoorBlocker" type="StaticBody2D" parent="ObjectLayer"]
-position = Vector2(80, 92)
+position = Vector2(650, 600)
 collision_layer = 1
 collision_mask = 2
 
@@ -106,17 +106,18 @@ message_text = "The table gives a tiny wobble. Decoration systems come later."
 object_color = Color(0.604, 0.388, 0.251, 1)
 
 [node name="Door" parent="Interactables" instance=ExtResource("3_interactable")]
-position = Vector2(80, 62)
-prompt_text = "Press E to use door"
-message_text = "Coming soon."
-object_color = Color(0.400, 0.275, 0.188, 1)
+position = Vector2(650, 635)
+prompt_text = "Press E to enter church"
+message_text = "You open the church door."
+object_color = Color(0.400, 0.275, 0.188, 0)
+target_scene_path = "res://scenes/world/ChurchEntrance.tscn"
 
 [node name="RemotePlayers" type="Node2D" parent="."]
 unique_name_in_owner = true
 
 [node name="LocalPlayer" parent="." instance=ExtResource("2_local")]
 unique_name_in_owner = true
-position = Vector2(420, 650)
+position = Vector2(650, 635)
 
 [node name="Camera2D" type="Camera2D" parent="LocalPlayer"]
 unique_name_in_owner = true
