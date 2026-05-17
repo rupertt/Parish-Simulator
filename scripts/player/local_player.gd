@@ -21,9 +21,12 @@ func _ready() -> void:
 	_apply_character_animation(GameState.character_walk_sheet_path)
 
 func _physics_process(delta: float) -> void:
-	if controls_locked:
+	if controls_locked or GameState.is_ui_screen_open():
 		velocity = Vector2.ZERO
 		move_and_slide()
+		if _last_direction != Vector2.ZERO:
+			_last_direction = Vector2.ZERO
+			input_changed.emit(Vector2.ZERO, facing)
 		_update_animation(false)
 		_update_direction_color(false)
 		return

@@ -3,10 +3,13 @@ extends CanvasLayer
 
 @onready var name_label: Label = %NameLabel
 @onready var status_label: Label = %StatusLabel
+@onready var top_bar: Control = $TopBar
+@onready var character_button: Button = %CharacterButton
 @onready var prompt_panel: Control = %PromptPanel
 @onready var prompt_label: Label = %PromptLabel
 @onready var message_panel: Control = %MessagePanel
 @onready var message_label: Label = %MessageLabel
+@onready var character_screen: Control = %CharacterScreen
 @onready var debug_panel: PanelContainer = %DebugPanel
 @onready var debug_label: Label = %DebugLabel
 
@@ -16,13 +19,20 @@ var message_token := 0
 
 func _ready() -> void:
 	GameState.connection_status_changed.connect(set_status)
+	GameState.ui_screen_toggled.connect(_on_ui_screen_toggled)
+	character_button.pressed.connect(func() -> void: GameState.toggle_ui_screen("character"))
 	set_player_name(GameState.player_name)
 	set_status(GameState.connection_status)
 	set_prompt("")
 	message_panel.visible = false
+	character_screen.visible = false
 	debug_panel.visible = false
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("character_screen"):
+		GameState.toggle_ui_screen("character")
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("debug_toggle"):
 		debug_panel.visible = not debug_panel.visible
 
@@ -34,12 +44,14 @@ func set_status(value: String) -> void:
 
 func set_prompt(value: String) -> void:
 	current_prompt = value
-	if message_panel.visible:
+	if message_panel.visible or GameState.is_ui_screen_open():
 		return
 	prompt_panel.visible = not value.is_empty()
 	prompt_label.text = value
 
 func show_message(value: String) -> void:
+	if GameState.is_ui_screen_open():
+		return
 	message_token += 1
 	var active_token := message_token
 	message_label.text = value
@@ -51,6 +63,19 @@ func show_message(value: String) -> void:
 	message_panel.visible = false
 	prompt_label.text = current_prompt
 	prompt_panel.visible = not current_prompt.is_empty()
+
+func _on_ui_screen_toggled(screen_id: String, is_open: bool) -> void:
+	if screen_id != "character":
+		return
+	character_button.disabled = is_open
+	if is_open:
+		message_panel.visible = false
+		prompt_panel.visible = false
+		character_screen.call("open_screen")
+	else:
+		character_screen.call("close_screen")
+		prompt_label.text = current_prompt
+		prompt_panel.visible = not current_prompt.is_empty()
 
 func set_ping(value: int) -> void:
 	ping_ms = value

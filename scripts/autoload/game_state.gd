@@ -1,6 +1,7 @@
 extends Node
 
 signal connection_status_changed(status: String)
+signal ui_screen_toggled(screen_id: String, is_open: bool)
 
 var player_name: String = "Player"
 var server_url: String = "ws://localhost:3000/ws"
@@ -10,6 +11,7 @@ var character_name: String = "Vicar"
 var character_color: Color = Color("#d95f5f")
 var character_icon_path: String = "res://assets/art/animations/icons/vicar.png"
 var character_walk_sheet_path: String = "res://assets/art/animations/vicar_walk_sheet.png"
+var active_ui_screen := ""
 
 const SHARED_ROOM := "main"
 const SELECTABLE_CHARACTER_IDS := ["char_01", "char_11", "char_12", "char_13"]
@@ -80,3 +82,34 @@ func detect_server_url() -> String:
 func set_connection_status(status: String) -> void:
 	connection_status = status
 	connection_status_changed.emit(status)
+
+func open_ui_screen(screen_id: String) -> void:
+	if screen_id.is_empty():
+		return
+	if active_ui_screen == screen_id:
+		ui_screen_toggled.emit(screen_id, true)
+		return
+	if not active_ui_screen.is_empty():
+		var previous_screen := active_ui_screen
+		active_ui_screen = ""
+		ui_screen_toggled.emit(previous_screen, false)
+	active_ui_screen = screen_id
+	ui_screen_toggled.emit(screen_id, true)
+
+func close_ui_screen(screen_id: String = "") -> void:
+	var target_screen := active_ui_screen if screen_id.is_empty() else screen_id
+	if target_screen.is_empty() or active_ui_screen != target_screen:
+		return
+	active_ui_screen = ""
+	ui_screen_toggled.emit(target_screen, false)
+
+func toggle_ui_screen(screen_id: String) -> void:
+	if active_ui_screen == screen_id:
+		close_ui_screen(screen_id)
+	else:
+		open_ui_screen(screen_id)
+
+func is_ui_screen_open(screen_id: String = "") -> bool:
+	if screen_id.is_empty():
+		return not active_ui_screen.is_empty()
+	return active_ui_screen == screen_id
