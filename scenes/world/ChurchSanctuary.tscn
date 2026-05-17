@@ -47,7 +47,7 @@ collision_mask = 2
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/CenterLeftPewsCollision" unique_id=948185015]
 position = Vector2(42.226013, 61.9077)
 scale = Vector2(0.8708949, 0.8938241)
-polygon = PackedVector2Array(462.48288, 236.16762, 550.89764, 238.4052, 555.49066, 499.0829, 414.25662, 500.20166)
+polygon = PackedVector2Array(468.22406, 224.97972, 557.7871, 224.97972, 555.49066, 499.0829, 414.25662, 500.20166)
 
 [node name="CenterRightPewsCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=1566152951]
 collision_mask = 2
