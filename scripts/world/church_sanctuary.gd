@@ -51,6 +51,7 @@ const NAVIGATION_AREAS := [
 @onready var hud: CanvasLayer = %HUD
 @onready var camera: Camera2D = %Camera2D
 @onready var preach_point: Marker2D = $Interactables/Pulpit/Preachpoint
+@onready var pulpit_foreground: Polygon2D = $ObjectLayer/PulpitForeground
 
 var current_interactable: Area2D
 var is_preaching := false
@@ -121,6 +122,8 @@ func _scale_points(points: Array) -> PackedVector2Array:
 	return scaled_points
 
 func _on_interactable_focus_entered(interactable: Area2D) -> void:
+	if is_preaching:
+		return
 	current_interactable = interactable
 	hud.set_prompt(String(interactable.get("prompt_text")))
 
@@ -135,6 +138,7 @@ func _start_preaching() -> void:
 	is_preaching = true
 	local_player.global_position = preach_point.global_position
 	local_player.z_index = 20
+	pulpit_foreground.visible = true
 	local_player.call("face", "down")
 	local_player.call("set_controls_locked", true)
 	hud.set_status("Preaching")
@@ -143,6 +147,7 @@ func _start_preaching() -> void:
 
 func _end_preaching() -> void:
 	is_preaching = false
+	pulpit_foreground.visible = false
 	local_player.z_index = 0
 	local_player.call("set_controls_locked", false)
 	hud.set_status("Sanctuary")

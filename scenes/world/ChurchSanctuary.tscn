@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://hud" path="res://scenes/ui/HUD.tscn" id="5_hud"]
 
 [node name="ChurchSanctuary" type="Node2D" unique_id=1555221516]
+z_index = 10
 script = ExtResource("1_sanctuary")
 
 [node name="RoomBackdrop" type="CanvasLayer" parent="." unique_id=307905213]
@@ -112,6 +113,13 @@ polygon = PackedVector2Array(667, 18, 852, 14, 772, 217, 752, 216, 670, 214)
 position = Vector2(-40, -12)
 polygon = PackedVector2Array(705, 196, 762, 199, 774, 200, 780, 245, 705, 246)
 
+[node name="PulpitForeground" type="Polygon2D" parent="ObjectLayer" unique_id=2122380427]
+visible = false
+z_index = 80
+texture = ExtResource("2_sanctuary_image")
+polygon = PackedVector2Array(372, 218, 400, 210, 414, 222, 427, 228, 444, 222, 456, 210, 471, 218, 471, 272, 458, 286, 427, 296, 394, 288, 372, 270)
+uv = PackedVector2Array(558, 327, 600, 315, 621, 333, 640.5, 342, 666, 333, 684, 315, 706.5, 327, 706.5, 408, 687, 429, 640.5, 444, 591, 432, 558, 405)
+
 [node name="Interactables" type="Node2D" parent="." unique_id=66837985]
 unique_name_in_owner = true
 
@@ -129,7 +137,7 @@ message_text = "You stand at the pulpit."
 object_color = Color(0.604, 0.388, 0.251, 0.22)
 
 [node name="Preachpoint" type="Marker2D" parent="Interactables/Pulpit" unique_id=1226871275]
-position = Vector2(-2, 13)
+position = Vector2(-2, 2)
 
 [node name="Altar" parent="Interactables" unique_id=209875681 instance=ExtResource("4_interactable")]
 position = Vector2(557.333, 213.333)
@@ -139,6 +147,7 @@ object_color = Color(0.604, 0.388, 0.251, 0.22)
 
 [node name="LocalPlayer" parent="." unique_id=1190366380 instance=ExtResource("3_local")]
 unique_name_in_owner = true
+z_index = 12
 position = Vector2(557.333, 540)
 
 [node name="Camera2D" type="Camera2D" parent="LocalPlayer" unique_id=1645330551]
