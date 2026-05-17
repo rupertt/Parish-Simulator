@@ -2,6 +2,7 @@ extends Node2D
 
 const MAP_WIDTH := 1254
 const MAP_HEIGHT := 1254
+const CHURCH_ENTRY_ZONE := Rect2(Vector2(590, 560), Vector2(120, 120))
 
 const REMOTE_PLAYER_SCENE := preload("res://scenes/player/RemotePlayer.tscn")
 const MAP_COLLISION_SHAPES := [
@@ -158,11 +159,19 @@ func start_session() -> void:
 
 func _process(_delta: float) -> void:
 	hud.update_debug(local_player.global_position, PlayerRegistry.count())
+	if current_interactable == null:
+		if CHURCH_ENTRY_ZONE.has_point(local_player.global_position):
+			hud.set_prompt("Press E to enter church")
+		else:
+			hud.set_prompt("")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact") and current_interactable:
 		var message: String = current_interactable.call("interact")
 		hud.show_message(message)
+	elif event.is_action_pressed("interact") and CHURCH_ENTRY_ZONE.has_point(local_player.global_position):
+		hud.show_message("You open the church door.")
+		SceneLoader.change_to.call_deferred("res://scenes/world/ChurchEntrance.tscn")
 
 func _on_local_input_changed(direction: Vector2, facing: String) -> void:
 	NetworkManager.set_local_input(direction, facing)
