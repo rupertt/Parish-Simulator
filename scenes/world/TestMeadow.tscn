@@ -1,10 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://test_meadow"]
+[gd_scene format=3 uid="uid://bc8upryy07fnh"]
 
-[ext_resource type="Script" path="res://scripts/world/test_meadow.gd" id="1_world"]
+[ext_resource type="Script" uid="uid://dyk3gef6msqug" path="res://scripts/world/test_meadow.gd" id="1_world"]
 [ext_resource type="PackedScene" path="res://scenes/player/LocalPlayer.tscn" id="2_local"]
-[ext_resource type="PackedScene" path="res://scenes/interactables/Interactable.tscn" id="3_interactable"]
-[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="4_hud"]
-[ext_resource type="Texture2D" path="res://Images for game/Village Tilemap.png" id="5_town_map"]
+[ext_resource type="PackedScene" uid="uid://interactable" path="res://scenes/interactables/Interactable.tscn" id="3_interactable"]
+[ext_resource type="PackedScene" uid="uid://hud" path="res://scenes/ui/HUD.tscn" id="4_hud"]
+[ext_resource type="Texture2D" uid="uid://bbf0tbuqe038q" path="res://Images for game/Village Tilemap.png" id="5_town_map"]
 
 [sub_resource type="RectangleShape2D" id="BoundaryHorizontal"]
 size = Vector2(1254, 24)
@@ -12,86 +12,110 @@ size = Vector2(1254, 24)
 [sub_resource type="RectangleShape2D" id="BoundaryVertical"]
 size = Vector2(24, 1254)
 
-[node name="TestMeadow" type="Node2D"]
+[node name="TestMeadow" type="Node2D" unique_id=1326685502]
 script = ExtResource("1_world")
 
-[node name="GroundLayer" type="Node2D" parent="."]
+[node name="GroundLayer" type="Node2D" parent="." unique_id=63615532]
 
-[node name="TownMap" type="Sprite2D" parent="GroundLayer"]
+[node name="TownMap" type="Sprite2D" parent="GroundLayer" unique_id=575278642]
+z_index = 10
 texture_filter = 1
-position = Vector2(0, 0)
+position = Vector2(0, 10)
 texture = ExtResource("5_town_map")
 centered = false
 
-[node name="ObjectLayer" type="Node2D" parent="."]
+[node name="ObjectLayer" type="Node2D" parent="." unique_id=1122400631]
 
-[node name="NorthBoundary" type="StaticBody2D" parent="ObjectLayer"]
-collision_layer = 1
+[node name="NorthBoundary" type="StaticBody2D" parent="ObjectLayer" unique_id=1448808679]
 collision_mask = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/NorthBoundary"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/NorthBoundary" unique_id=1569898928]
 position = Vector2(627, 12)
 shape = SubResource("BoundaryHorizontal")
 
-[node name="SouthBoundary" type="StaticBody2D" parent="ObjectLayer"]
-collision_layer = 1
+[node name="SouthBoundary" type="StaticBody2D" parent="ObjectLayer" unique_id=612247704]
 collision_mask = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/SouthBoundary"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/SouthBoundary" unique_id=948929535]
 position = Vector2(627, 1242)
 shape = SubResource("BoundaryHorizontal")
 
-[node name="WestBoundary" type="StaticBody2D" parent="ObjectLayer"]
-collision_layer = 1
+[node name="WestBoundary" type="StaticBody2D" parent="ObjectLayer" unique_id=324674707]
 collision_mask = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/WestBoundary"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/WestBoundary" unique_id=1978920229]
 position = Vector2(12, 627)
 shape = SubResource("BoundaryVertical")
 
-[node name="EastBoundary" type="StaticBody2D" parent="ObjectLayer"]
-collision_layer = 1
+[node name="EastBoundary" type="StaticBody2D" parent="ObjectLayer" unique_id=1745671604]
 collision_mask = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/EastBoundary"]
-position = Vector2(1242, 627)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/EastBoundary" unique_id=1353997952]
+position = Vector2(1261, 619)
 shape = SubResource("BoundaryVertical")
 
-[node name="Interactables" type="Node2D" parent="."]
+[node name="MeadowCollision" type="Node2D" parent="ObjectLayer" unique_id=1245974651]
+
+[node name="HousesCollision" type="StaticBody2D" parent="ObjectLayer/MeadowCollision" unique_id=1879937032]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/MeadowCollision/HousesCollision" unique_id=948743696]
+position = Vector2(595, 285)
+polygon = PackedVector2Array(3, 26, 5, 68, -16, 83, -36, 84, -41, 157, -53, 166, -54, 181, -51, 273, -3, 274, 121, 276, 120, 176, 102, 155, 100, 84, 87, 86, 61, 70, 59, 28)
+
+[node name="ChurchTowerForeground" type="Sprite2D" parent="ObjectLayer" unique_id=2056628793]
+visible = false
+z_index = 50
+position = Vector2(628, 263)
+scale = Vector2(1, 0.97087395)
+texture = ExtResource("5_town_map")
+region_enabled = true
+region_rect = Rect2(601.0383, 201.31104, 56.91394, 123.62442)
+region_filter_clip_enabled = true
+
+[node name="ChurchTowerForeground2" type="Polygon2D" parent="ObjectLayer" unique_id=2121023577]
+z_index = 50
+position = Vector2(660, 281)
+texture = ExtResource("5_town_map")
+polygon = PackedVector2Array(-2, 41, -2, 45, -1, 4, -9, 4, -23, -31, -22, -40, -27, -43, -28, -52, -23, -53, -24, -57, -28, -57, -28, -63, -30, -65, -32, -65, -34, -57, -41, -58, -38, -53, -33, -52, -37, -33, -49, 4, -58, 5, -59, 50, -2, 51)
+uv = PackedVector2Array(657.8706, 312.5111, 657.8706, 316.5111, 658.8706, 275.5111, 650.8706, 275.5111, 636.8706, 240.5111, 637.8706, 231.5111, 632.8706, 228.5111, 631.8706, 219.5111, 636.8706, 218.5111, 635.8706, 214.5111, 631.8706, 214.5111, 631.8706, 208.5111, 629.8706, 206.5111, 627.8706, 206.5111, 625.8706, 214.5111, 618.8706, 213.5111, 621.8706, 218.5111, 626.8706, 219.5111, 622.8706, 238.5111, 610.8706, 275.5111, 601.8706, 276.5111, 600.8706, 321.5111, 657.8706, 322.5111)
+
+[node name="Interactables" type="Node2D" parent="." unique_id=132772417]
 unique_name_in_owner = true
 
-[node name="Sign" parent="Interactables" instance=ExtResource("3_interactable")]
-position = Vector2(180, 132)
+[node name="Sign" parent="Interactables" unique_id=830797898 instance=ExtResource("3_interactable")]
+position = Vector2(440, 118)
 prompt_text = "Press E to read"
 message_text = "A hand-painted sign: Welcome to the first local test meadow."
-object_color = Color(0.847, 0.710, 0.427, 1)
+object_color = Color(0.847, 0.71, 0.427, 1)
 
-[node name="Table" parent="Interactables" instance=ExtResource("3_interactable")]
+[node name="Table" parent="Interactables" unique_id=2079883832 instance=ExtResource("3_interactable")]
 position = Vector2(360, 178)
 prompt_text = "Press E to inspect"
 message_text = "The table gives a tiny wobble. Decoration systems come later."
 object_color = Color(0.604, 0.388, 0.251, 1)
 
-[node name="Door" parent="Interactables" instance=ExtResource("3_interactable")]
-position = Vector2(650, 635)
+[node name="Door" parent="Interactables" unique_id=290433983 instance=ExtResource("3_interactable")]
+position = Vector2(637, 537)
 prompt_text = "Press E to enter church"
 message_text = "You open the church door."
-object_color = Color(0.400, 0.275, 0.188, 0)
+object_color = Color(0.4, 0.275, 0.188, 0)
 target_scene_path = "res://scenes/world/ChurchEntrance.tscn"
 
-[node name="RemotePlayers" type="Node2D" parent="."]
+[node name="RemotePlayers" type="Node2D" parent="." unique_id=1302878877]
 unique_name_in_owner = true
 
-[node name="LocalPlayer" parent="." instance=ExtResource("2_local")]
+[node name="LocalPlayer" parent="." unique_id=251277298 instance=ExtResource("2_local")]
 unique_name_in_owner = true
-position = Vector2(650, 635)
+z_index = 15
+position = Vector2(635, 537)
 
-[node name="Camera2D" type="Camera2D" parent="LocalPlayer"]
+[node name="Camera2D" type="Camera2D" parent="LocalPlayer" unique_id=308156508]
 unique_name_in_owner = true
+position = Vector2(-25, -97)
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 
-[node name="AbovePlayerLayer" type="Node2D" parent="."]
+[node name="AbovePlayerLayer" type="Node2D" parent="." unique_id=586747319]
 
-[node name="HUD" parent="." instance=ExtResource("4_hud")]
+[node name="HUD" parent="." unique_id=1285257098 instance=ExtResource("4_hud")]
 unique_name_in_owner = true
