@@ -1,0 +1,89 @@
+[gd_scene load_steps=4 format=3 uid="uid://character_screen"]
+
+[ext_resource type="Script" path="res://scripts/ui/character_screen.gd" id="1_character_screen"]
+[ext_resource type="Theme" path="res://assets/ui/game_ui_theme.tres" id="2_ui_theme"]
+[ext_resource type="FontFile" path="res://assets/fonts/pixelify_sans.ttf" id="3_pixel_font"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.631373, 0.568627, 0.482353, 0.94)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.360784, 0.282353, 0.219608, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="CharacterScreen" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_ui_theme")
+mouse_filter = 1
+script = ExtResource("1_character_screen")
+screen_id = "character"
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0509804, 0.0862745, 0.137255, 0.58)
+
+[node name="MenuRoot" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+offset_right = 520.0
+offset_bottom = 44.0
+
+[node name="MenuPanel" type="PanelContainer" parent="MenuRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="MenuMargin" type="MarginContainer" parent="MenuRoot/MenuPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="MenuButtons" type="HBoxContainer" parent="MenuRoot/MenuPanel/MenuMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BackpackButton" type="Button" parent="MenuRoot/MenuPanel/MenuMargin/MenuButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("3_pixel_font")
+text = "BACKPACK"
+
+[node name="RecipesButton" type="Button" parent="MenuRoot/MenuPanel/MenuMargin/MenuButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("3_pixel_font")
+text = "RECIPES"
+
+[node name="QuestsButton" type="Button" parent="MenuRoot/MenuPanel/MenuMargin/MenuButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("3_pixel_font")
+text = "QUESTS"
+
+[node name="VillageButton" type="Button" parent="MenuRoot/MenuPanel/MenuMargin/MenuButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("3_pixel_font")
+text = "VILLAGE"

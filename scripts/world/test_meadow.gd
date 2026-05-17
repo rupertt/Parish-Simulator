@@ -166,6 +166,8 @@ func _process(_delta: float) -> void:
 			hud.set_prompt("")
 
 func _unhandled_input(event: InputEvent) -> void:
+	if GameState.is_ui_screen_open():
+		return
 	if event.is_action_pressed("interact") and current_interactable:
 		var message: String = current_interactable.call("interact")
 		hud.show_message(message)

@@ -6,6 +6,7 @@ const INPUTS := {
 	"move_left": [KEY_A, KEY_LEFT],
 	"move_right": [KEY_D, KEY_RIGHT],
 	"interact": [KEY_E],
+	"character_screen": [KEY_C],
 	"debug_toggle": [KEY_F3]
 }
 
