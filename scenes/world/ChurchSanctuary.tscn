@@ -1,18 +1,18 @@
-[gd_scene load_steps=6 format=3 uid="uid://church_sanctuary"]
+[gd_scene format=3 uid="uid://dee5pfy057bn5"]
 
-[ext_resource type="Script" path="res://scripts/world/church_sanctuary.gd" id="1_sanctuary"]
-[ext_resource type="Texture2D" path="res://assets/art/tilesets/church_sanctuary_room.png" id="2_sanctuary_image"]
+[ext_resource type="Script" uid="uid://bd1os3lh6s6dg" path="res://scripts/world/church_sanctuary.gd" id="1_sanctuary"]
+[ext_resource type="Texture2D" uid="uid://dcbm56igoys86" path="res://assets/art/tilesets/church_sanctuary_room.png" id="2_sanctuary_image"]
 [ext_resource type="PackedScene" path="res://scenes/player/LocalPlayer.tscn" id="3_local"]
-[ext_resource type="PackedScene" path="res://scenes/interactables/Interactable.tscn" id="4_interactable"]
-[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="5_hud"]
+[ext_resource type="PackedScene" uid="uid://interactable" path="res://scenes/interactables/Interactable.tscn" id="4_interactable"]
+[ext_resource type="PackedScene" uid="uid://hud" path="res://scenes/ui/HUD.tscn" id="5_hud"]
 
-[node name="ChurchSanctuary" type="Node2D"]
+[node name="ChurchSanctuary" type="Node2D" unique_id=1555221516]
 script = ExtResource("1_sanctuary")
 
-[node name="RoomBackdrop" type="CanvasLayer" parent="."]
+[node name="RoomBackdrop" type="CanvasLayer" parent="." unique_id=307905213]
 layer = -10
 
-[node name="BlackFill" type="ColorRect" parent="RoomBackdrop"]
+[node name="BlackFill" type="ColorRect" parent="RoomBackdrop" unique_id=1086856983]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -20,46 +20,128 @@ offset_right = 640.0
 offset_bottom = 360.0
 color = Color(0, 0, 0, 1)
 
-[node name="GroundLayer" type="Node2D" parent="."]
+[node name="GroundLayer" type="Node2D" parent="." unique_id=1761824602]
 scale = Vector2(0.666667, 0.666667)
 
-[node name="RoomImage" type="Sprite2D" parent="GroundLayer"]
+[node name="RoomImage" type="Sprite2D" parent="GroundLayer" unique_id=1376259925]
 texture_filter = 1
+position = Vector2(1.4999993, 1.5)
 texture = ExtResource("2_sanctuary_image")
 centered = false
 
-[node name="ObjectLayer" type="Node2D" parent="."]
+[node name="ObjectLayer" type="Node2D" parent="." unique_id=1989761631]
 
-[node name="Interactables" type="Node2D" parent="."]
+[node name="SanctuaryCollision" type="Node2D" parent="ObjectLayer" unique_id=1495622572]
+
+[node name="LeftPewsCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=2078641347]
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/LeftPewsCollision" unique_id=793468395]
+position = Vector2(75.99999, -1.9999962)
+scale = Vector2(0.9072713, 0.94864863)
+polygon = PackedVector2Array(307.5155, 284.61536, 387.97653, 283.56122, 346.667, 514.667, 271.1427, 513.3618, 213.82797, 514.41595)
+
+[node name="CenterLeftPewsCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=1187607274]
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/CenterLeftPewsCollision" unique_id=948185015]
+position = Vector2(42.226013, 61.9077)
+scale = Vector2(0.8708949, 0.8938241)
+polygon = PackedVector2Array(462.48288, 236.16762, 550.89764, 238.4052, 555.49066, 499.0829, 414.25662, 500.20166)
+
+[node name="CenterRightPewsCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=1566152951]
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/CenterRightPewsCollision" unique_id=518851726]
+position = Vector2(-25, -15)
+polygon = PackedVector2Array(617, 281, 694, 279, 732, 515, 624, 519)
+
+[node name="RightPewsCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=1175859173]
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/RightPewsCollision" unique_id=1532067606]
+position = Vector2(-80, -16)
+polygon = PackedVector2Array(763, 284, 834, 284, 924, 517, 805, 513)
+
+[node name="PulpitCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=2012851710]
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/PulpitCollision" unique_id=2104586745]
+polygon = PackedVector2Array(382, 205, 460, 199, 455, 247, 423, 248, 382, 246)
+
+[node name="AltarStepsCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=652874990]
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/AltarStepsCollision" unique_id=1425307985]
+position = Vector2(16.780762, 11.541794)
+scale = Vector2(0.97664154, 0.93504906)
+polygon = PackedVector2Array(463, 194, 659, 193, 658, 195, 659, 240, 461, 244)
+
+[node name="AltarPlatformCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=2041954441]
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/AltarPlatformCollision" unique_id=404770607]
+polygon = PackedVector2Array(458.667, 53.333, 665.333, 53.333, 665.333, 190.667, 458.667, 190.667)
+
+[node name="LeftWallCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=1892117155]
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/LeftWallCollision" unique_id=2096864827]
+position = Vector2(9, -2)
+polygon = PackedVector2Array(0, 0, 335, 6, 335, 233, 203, 495, 186.667, 504, 446.667, 504, 446.667, 627.333, 0, 627.333)
+
+[node name="RightWallCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=825549086]
+collision_mask = 2
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/RightWallCollision" unique_id=177159648]
+position = Vector2(6, -3)
+polygon = PackedVector2Array(815, 5, 1114.667, 0, 1114.667, 627.333, 668, 627.333, 668, 504, 869, 499, 892, 494, 759, 235, 809, 139)
+
+[node name="SideFurnitureCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=585683259]
+collision_mask = 2
+
+[node name="LeftOrganPolygon" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/SideFurnitureCollision" unique_id=1913343528]
+position = Vector2(42, -13)
+polygon = PackedVector2Array(304, 57.333, 444, 57.333, 444, 180.667, 304, 180.667)
+
+[node name="RightOrganPolygon" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/SideFurnitureCollision" unique_id=1416828926]
+position = Vector2(-6, 12)
+polygon = PackedVector2Array(667, 18, 852, 14, 772, 217, 752, 216, 670, 214)
+
+[node name="RightFurniturePolygon" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/SideFurnitureCollision" unique_id=1766165937]
+position = Vector2(-40, -12)
+polygon = PackedVector2Array(705, 196, 762, 199, 774, 200, 780, 245, 705, 246)
+
+[node name="Interactables" type="Node2D" parent="." unique_id=66837985]
 unique_name_in_owner = true
 
-[node name="ExitDoor" parent="Interactables" instance=ExtResource("4_interactable")]
+[node name="ExitDoor" parent="Interactables" unique_id=1903179777 instance=ExtResource("4_interactable")]
 position = Vector2(557.333, 540)
 prompt_text = "Press E to return to entrance"
 message_text = "You return to the church entrance."
 object_color = Color(0.4, 0.275, 0.188, 0.18)
 target_scene_path = "res://scenes/world/ChurchEntrance.tscn"
 
-[node name="Pulpit" parent="Interactables" instance=ExtResource("4_interactable")]
-position = Vector2(380, 236)
+[node name="Pulpit" parent="Interactables" unique_id=847093433 instance=ExtResource("4_interactable")]
+position = Vector2(422, 237)
 prompt_text = "Press E to start preaching"
 message_text = "You stand at the pulpit."
 object_color = Color(0.604, 0.388, 0.251, 0.22)
 
-[node name="Altar" parent="Interactables" instance=ExtResource("4_interactable")]
+[node name="Altar" parent="Interactables" unique_id=209875681 instance=ExtResource("4_interactable")]
 position = Vector2(557.333, 213.333)
 prompt_text = "Press E to view altar"
 message_text = "The sanctuary feels quiet and reverent."
 object_color = Color(0.604, 0.388, 0.251, 0.22)
 
-[node name="LocalPlayer" parent="." instance=ExtResource("3_local")]
+[node name="LocalPlayer" parent="." unique_id=1190366380 instance=ExtResource("3_local")]
 unique_name_in_owner = true
 position = Vector2(557.333, 540)
 
-[node name="Camera2D" type="Camera2D" parent="LocalPlayer"]
+[node name="Camera2D" type="Camera2D" parent="LocalPlayer" unique_id=1645330551]
 unique_name_in_owner = true
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 
-[node name="HUD" parent="." instance=ExtResource("5_hud")]
+[node name="HUD" parent="." unique_id=1948281195 instance=ExtResource("5_hud")]
 unique_name_in_owner = true
