@@ -25,7 +25,7 @@ scale = Vector2(0.666667, 0.666667)
 
 [node name="RoomImage" type="Sprite2D" parent="GroundLayer" unique_id=1376259925]
 texture_filter = 1
-position = Vector2(1.4999993, 1.5)
+position = Vector2(0, 2.9999986)
 texture = ExtResource("2_sanctuary_image")
 centered = false
 
@@ -67,13 +67,13 @@ polygon = PackedVector2Array(763, 284, 834, 284, 924, 517, 805, 513)
 collision_mask = 2
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/PulpitCollision" unique_id=2104586745]
-polygon = PackedVector2Array(382, 205, 460, 199, 455, 247, 423, 248, 382, 246)
+polygon = PackedVector2Array(403, 225, 434, 220, 450, 197, 467, 196, 466, 246, 423, 248, 404, 249, 401, 239, 375, 244)
 
 [node name="AltarStepsCollision" type="StaticBody2D" parent="ObjectLayer/SanctuaryCollision" unique_id=652874990]
 collision_mask = 2
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/AltarStepsCollision" unique_id=1425307985]
-position = Vector2(16.780762, 11.541794)
+position = Vector2(16, 12)
 scale = Vector2(0.97664154, 0.93504906)
 polygon = PackedVector2Array(463, 194, 659, 193, 658, 195, 659, 240, 461, 244)
 
@@ -102,7 +102,7 @@ collision_mask = 2
 
 [node name="LeftOrganPolygon" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/SideFurnitureCollision" unique_id=1913343528]
 position = Vector2(42, -13)
-polygon = PackedVector2Array(304, 57.333, 444, 57.333, 444, 180.667, 304, 180.667)
+polygon = PackedVector2Array(304, 57.333, 444, 57.333, 415, 201, 369, 203, 343, 203, 335, 206, 334, 223, 333, 224, 303, 224)
 
 [node name="RightOrganPolygon" type="CollisionPolygon2D" parent="ObjectLayer/SanctuaryCollision/SideFurnitureCollision" unique_id=1416828926]
 position = Vector2(-6, 12)
@@ -123,10 +123,13 @@ object_color = Color(0.4, 0.275, 0.188, 0.18)
 target_scene_path = "res://scenes/world/ChurchEntrance.tscn"
 
 [node name="Pulpit" parent="Interactables" unique_id=847093433 instance=ExtResource("4_interactable")]
-position = Vector2(422, 237)
+position = Vector2(428, 194)
 prompt_text = "Press E to start preaching"
 message_text = "You stand at the pulpit."
 object_color = Color(0.604, 0.388, 0.251, 0.22)
+
+[node name="Preachpoint" type="Marker2D" parent="Interactables/Pulpit" unique_id=1226871275]
+position = Vector2(-2, 13)
 
 [node name="Altar" parent="Interactables" unique_id=209875681 instance=ExtResource("4_interactable")]
 position = Vector2(557.333, 213.333)

@@ -6,7 +6,6 @@ const ROOM_HEIGHT := 941.0 * ROOM_SCALE
 const WORLD_COLLISION_LAYER := 1
 const PLAYER_COLLISION_LAYER := 2
 const PLAYER_START := Vector2(836, 810) * ROOM_SCALE
-const PREACHING_POSITION := Vector2(575, 380) * ROOM_SCALE
 const PULPIT_ENTRY_ZONE := Rect2(Vector2(500, 300) * ROOM_SCALE, Vector2(180, 160) * ROOM_SCALE)
 
 const NAVIGATION_AREAS := [
@@ -51,6 +50,7 @@ const NAVIGATION_AREAS := [
 @onready var interactables: Node2D = %Interactables
 @onready var hud: CanvasLayer = %HUD
 @onready var camera: Camera2D = %Camera2D
+@onready var preach_point: Marker2D = $Interactables/Pulpit/Preachpoint
 
 var current_interactable: Area2D
 var is_preaching := false
@@ -133,7 +133,7 @@ func _on_interactable_focus_exited(interactable: Area2D) -> void:
 
 func _start_preaching() -> void:
 	is_preaching = true
-	local_player.global_position = PREACHING_POSITION
+	local_player.global_position = preach_point.global_position
 	local_player.z_index = 20
 	local_player.call("face", "down")
 	local_player.call("set_controls_locked", true)
