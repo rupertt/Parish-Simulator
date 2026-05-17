@@ -1,0 +1,77 @@
+[gd_scene load_steps=7 format=3 uid="uid://test_meadow"]
+
+[ext_resource type="Script" path="res://scripts/world/test_meadow.gd" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/player/LocalPlayer.tscn" id="2_local"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="4_hud"]
+[ext_resource type="Texture2D" path="res://Images for game/Village Tilemap.png" id="5_town_map"]
+
+[sub_resource type="RectangleShape2D" id="BoundaryHorizontal"]
+size = Vector2(1254, 24)
+
+[sub_resource type="RectangleShape2D" id="BoundaryVertical"]
+size = Vector2(24, 1254)
+
+[node name="TestMeadow" type="Node2D"]
+script = ExtResource("1_world")
+
+[node name="GroundLayer" type="Node2D" parent="."]
+
+[node name="TownMap" type="Sprite2D" parent="GroundLayer"]
+texture_filter = 1
+position = Vector2(0, 0)
+texture = ExtResource("5_town_map")
+centered = false
+
+[node name="ObjectLayer" type="Node2D" parent="."]
+
+[node name="NorthBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/NorthBoundary"]
+position = Vector2(627, 12)
+shape = SubResource("BoundaryHorizontal")
+
+[node name="SouthBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/SouthBoundary"]
+position = Vector2(627, 1242)
+shape = SubResource("BoundaryHorizontal")
+
+[node name="WestBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/WestBoundary"]
+position = Vector2(12, 627)
+shape = SubResource("BoundaryVertical")
+
+[node name="EastBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/EastBoundary"]
+position = Vector2(1242, 627)
+shape = SubResource("BoundaryVertical")
+
+[node name="Interactables" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="RemotePlayers" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="LocalPlayer" parent="." instance=ExtResource("2_local")]
+unique_name_in_owner = true
+position = Vector2(420, 650)
+
+[node name="Camera2D" type="Camera2D" parent="LocalPlayer"]
+unique_name_in_owner = true
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+
+[node name="AbovePlayerLayer" type="Node2D" parent="."]
+
+[node name="HUD" parent="." instance=ExtResource("4_hud")]
+unique_name_in_owner = true

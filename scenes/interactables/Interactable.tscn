@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://interactable"]
+
+[ext_resource type="Script" path="res://scripts/interactables/interactable.gd" id="1_interactable"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_interactable"]
+size = Vector2(28, 28)
+
+[node name="Interactable" type="Area2D"]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("1_interactable")
+
+[node name="Visual" type="Polygon2D" parent="."]
+unique_name_in_owner = true
+polygon = PackedVector2Array(-10, -10, 10, -10, 10, 10, -10, 10)
+color = Color(0.847, 0.710, 0.427, 1)
+
+[node name="Trigger" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_interactable")
