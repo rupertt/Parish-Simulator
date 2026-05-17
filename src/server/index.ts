@@ -381,8 +381,8 @@ function createPlayer(id: string, name: string, characterId: CharacterId): Playe
     room: SHARED_ROOM,
     name,
     characterId,
-    x: 420 + (roomCount % 5) * SPAWN_SPACING_X,
-    y: 650 + Math.floor(roomCount / 5) * SPAWN_SPACING_Y,
+    x: 650 + (roomCount % 5) * SPAWN_SPACING_X,
+    y: 635 + Math.floor(roomCount / 5) * SPAWN_SPACING_Y,
     color: characters[characterId].color,
     facing: 'down',
     moving: false

@@ -1,0 +1,65 @@
+[gd_scene load_steps=6 format=3 uid="uid://church_sanctuary"]
+
+[ext_resource type="Script" path="res://scripts/world/church_sanctuary.gd" id="1_sanctuary"]
+[ext_resource type="Texture2D" path="res://assets/art/tilesets/church_sanctuary_room.png" id="2_sanctuary_image"]
+[ext_resource type="PackedScene" path="res://scenes/player/LocalPlayer.tscn" id="3_local"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/Interactable.tscn" id="4_interactable"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="5_hud"]
+
+[node name="ChurchSanctuary" type="Node2D"]
+script = ExtResource("1_sanctuary")
+
+[node name="RoomBackdrop" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="BlackFill" type="ColorRect" parent="RoomBackdrop"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 640.0
+offset_bottom = 360.0
+color = Color(0, 0, 0, 1)
+
+[node name="GroundLayer" type="Node2D" parent="."]
+scale = Vector2(0.666667, 0.666667)
+
+[node name="RoomImage" type="Sprite2D" parent="GroundLayer"]
+texture_filter = 1
+texture = ExtResource("2_sanctuary_image")
+centered = false
+
+[node name="ObjectLayer" type="Node2D" parent="."]
+
+[node name="Interactables" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="ExitDoor" parent="Interactables" instance=ExtResource("4_interactable")]
+position = Vector2(557.333, 540)
+prompt_text = "Press E to return to entrance"
+message_text = "You return to the church entrance."
+object_color = Color(0.4, 0.275, 0.188, 0.18)
+target_scene_path = "res://scenes/world/ChurchEntrance.tscn"
+
+[node name="Pulpit" parent="Interactables" instance=ExtResource("4_interactable")]
+position = Vector2(380, 236)
+prompt_text = "Press E to start preaching"
+message_text = "You stand at the pulpit."
+object_color = Color(0.604, 0.388, 0.251, 0.22)
+
+[node name="Altar" parent="Interactables" instance=ExtResource("4_interactable")]
+position = Vector2(557.333, 213.333)
+prompt_text = "Press E to view altar"
+message_text = "The sanctuary feels quiet and reverent."
+object_color = Color(0.604, 0.388, 0.251, 0.22)
+
+[node name="LocalPlayer" parent="." instance=ExtResource("3_local")]
+unique_name_in_owner = true
+position = Vector2(557.333, 540)
+
+[node name="Camera2D" type="Camera2D" parent="LocalPlayer"]
+unique_name_in_owner = true
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+
+[node name="HUD" parent="." instance=ExtResource("5_hud")]
+unique_name_in_owner = true

@@ -6,6 +6,8 @@ Track all game-ready art assets added under `res://assets/art/`.
 | --- | --- | --- | --- | --- | --- |
 | Project icon | `res://assets/art/ui/icon.svg` | placeholder | Created in repo | Original placeholder | Loads as project icon |
 | Text panel | `res://assets/art/ui/text_panel.png` | placeholder | User-provided `panel.png`; original preserved at `art-source/text_panel_original.png` | User-provided; originality/license pending explicit confirmation | Checkerboard background removed for transparent UI use; used by HUD prompt and message panels with nearest filtering |
+| Church entrance room | `res://assets/art/tilesets/church_entrance_room.png` | draft | User-provided `ChatGPT Image May 16, 2026, 05_59_22 PM.png` | User-provided generated image; originality/license pending explicit confirmation | Used as the first church interior room background in `ChurchEntrance.tscn` |
+| Church sanctuary room | `res://assets/art/tilesets/church_sanctuary_room.png` | draft | User-provided `ChatGPT Image May 16, 2026, 06_22_27 PM.png` | User-provided generated image; originality/license pending explicit confirmation | Used as the sanctuary background in `ChurchSanctuary.tscn` |
 
 ## Font Assets
 

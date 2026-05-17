@@ -1,0 +1,117 @@
+[gd_scene load_steps=9 format=3 uid="uid://church_entrance"]
+
+[ext_resource type="Script" path="res://scripts/world/church_entrance.gd" id="1_room"]
+[ext_resource type="Texture2D" path="res://assets/art/tilesets/church_entrance_room.png" id="2_room_image"]
+[ext_resource type="PackedScene" path="res://scenes/player/LocalPlayer.tscn" id="3_local"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/Interactable.tscn" id="4_interactable"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="5_hud"]
+
+[sub_resource type="RectangleShape2D" id="BoundaryHorizontal"]
+size = Vector2(557.333, 24)
+
+[sub_resource type="RectangleShape2D" id="BoundaryVertical"]
+size = Vector2(24, 313.667)
+
+[sub_resource type="RectangleShape2D" id="SanctuaryDoorTrigger"]
+size = Vector2(64, 190)
+
+[node name="ChurchEntrance" type="Node2D"]
+script = ExtResource("1_room")
+
+[node name="RoomBackdrop" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="BlackFill" type="ColorRect" parent="RoomBackdrop"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 640.0
+offset_bottom = 360.0
+color = Color(0, 0, 0, 1)
+
+[node name="GroundLayer" type="Node2D" parent="."]
+scale = Vector2(0.333333, 0.333333)
+
+[node name="RoomImage" type="Sprite2D" parent="GroundLayer"]
+texture_filter = 1
+texture = ExtResource("2_room_image")
+centered = false
+
+[node name="ObjectLayer" type="Node2D" parent="."]
+
+[node name="NorthBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/NorthBoundary"]
+position = Vector2(278.667, 12)
+shape = SubResource("BoundaryHorizontal")
+
+[node name="SouthBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/SouthBoundary"]
+position = Vector2(278.667, 301.667)
+shape = SubResource("BoundaryHorizontal")
+
+[node name="WestBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/WestBoundary"]
+position = Vector2(12, 156.833)
+shape = SubResource("BoundaryVertical")
+
+[node name="EastBoundary" type="StaticBody2D" parent="ObjectLayer"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObjectLayer/EastBoundary"]
+position = Vector2(545.333, 156.833)
+shape = SubResource("BoundaryVertical")
+
+[node name="Interactables" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="ExitDoor" parent="Interactables" instance=ExtResource("4_interactable")]
+position = Vector2(278.667, 256.667)
+prompt_text = "Press E to leave church"
+message_text = "You step back outside."
+object_color = Color(0.4, 0.275, 0.188, 0.18)
+target_scene_path = "res://scenes/world/TestMeadow.tscn"
+
+[node name="SanctuaryDoor" parent="Interactables" instance=ExtResource("4_interactable")]
+position = Vector2(278.667, 103.333)
+prompt_text = "Press E to enter sanctuary"
+message_text = "You step toward the sanctuary."
+object_color = Color(0.4, 0.275, 0.188, 0)
+target_scene_path = "res://scenes/world/ChurchSanctuary.tscn"
+
+[node name="Trigger" parent="Interactables/SanctuaryDoor" index="1"]
+position = Vector2(0, 75)
+shape = SubResource("SanctuaryDoorTrigger")
+
+[node name="CoffeeStation" parent="Interactables" instance=ExtResource("4_interactable")]
+position = Vector2(396, 100)
+prompt_text = "Press E to inspect coffee"
+message_text = "Fresh coffee sits ready for people arriving before service."
+object_color = Color(0.604, 0.388, 0.251, 0.22)
+
+[node name="WelcomeTable" parent="Interactables" instance=ExtResource("4_interactable")]
+position = Vector2(386.667, 203.333)
+prompt_text = "Press E to read Bible"
+message_text = "An open Bible rests on the welcome table."
+object_color = Color(0.604, 0.388, 0.251, 0.22)
+
+[node name="LocalPlayer" parent="." instance=ExtResource("3_local")]
+unique_name_in_owner = true
+position = Vector2(278.667, 260)
+
+[node name="Camera2D" type="Camera2D" parent="LocalPlayer"]
+unique_name_in_owner = true
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+
+[node name="HUD" parent="." instance=ExtResource("5_hud")]
+unique_name_in_owner = true

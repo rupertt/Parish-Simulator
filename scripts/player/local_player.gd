@@ -11,6 +11,7 @@ const WALK_BOB_AMOUNT := 0.7
 @onready var body_sprite: Sprite2D = %BodySprite
 
 var facing := "down"
+var controls_locked := false
 var _animation_time := 0.0
 var _last_direction := Vector2.ZERO
 var _walk_animator := DirectionalWalkAnimator.new()
@@ -20,6 +21,13 @@ func _ready() -> void:
 	_apply_character_animation(GameState.character_walk_sheet_path)
 
 func _physics_process(delta: float) -> void:
+	if controls_locked:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		_update_animation(false)
+		_update_direction_color(false)
+		return
+
 	var direction := _get_move_direction()
 	var is_moving := direction.length() > 0.0
 	velocity = direction * SPEED
@@ -39,6 +47,25 @@ func _physics_process(delta: float) -> void:
 
 func is_local_player() -> bool:
 	return true
+
+func set_controls_locked(is_locked: bool) -> void:
+	controls_locked = is_locked
+	if is_locked:
+		velocity = Vector2.ZERO
+		_last_direction = Vector2.ZERO
+		input_changed.emit(Vector2.ZERO, facing)
+
+func face(direction_name: String) -> void:
+	match direction_name:
+		"up":
+			facing = "up"
+		"down":
+			facing = "down"
+		"left":
+			facing = "left"
+		"right":
+			facing = "right"
+	_update_animation(false)
 
 func _get_move_direction() -> Vector2:
 	var direction := Vector2.ZERO
