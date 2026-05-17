@@ -188,6 +188,18 @@ const compressedAssetTypes: Record<string, string> = {
   '.pck': 'application/octet-stream',
   '.wasm': 'application/wasm'
 };
+const noCacheHeaders: Record<string, string> = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+  Pragma: 'no-cache',
+  Expires: '0',
+  'Surrogate-Control': 'no-store'
+};
+
+function applyNoCacheHeaders(res: express.Response): void {
+  for (const [key, value] of Object.entries(noCacheHeaders)) {
+    res.setHeader(key, value);
+  }
+}
 
 app.use((_req, res, next) => {
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
@@ -242,6 +254,7 @@ app.get(['/index.js', '/index.pck', '/index.wasm'], (req, res, next) => {
     return;
   }
 
+  applyNoCacheHeaders(res);
   res.setHeader('Content-Encoding', 'gzip');
   res.setHeader('Content-Type', contentType);
   res.setHeader('Vary', 'Accept-Encoding');
@@ -252,8 +265,16 @@ app.get(['/index.js', '/index.pck', '/index.wasm'], (req, res, next) => {
   });
 });
 
-app.use(express.static(webExportPath));
+app.use((req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    applyNoCacheHeaders(res);
+  }
+  next();
+});
+
+app.use(express.static(webExportPath, { etag: false, lastModified: false }));
 app.get('*', (_req, res) => {
+  applyNoCacheHeaders(res);
   res.sendFile(path.join(webExportPath, 'index.html'), (error) => {
     if (error) {
       res
