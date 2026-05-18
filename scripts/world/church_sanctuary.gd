@@ -3,35 +3,62 @@ extends Node2D
 const ROOM_SCALE := 2.0 / 3.0
 const ROOM_WIDTH := 1672.0 * ROOM_SCALE
 const ROOM_HEIGHT := 941.0 * ROOM_SCALE
+const WORLD_COLLISION_LAYER := 1
+const PLAYER_COLLISION_LAYER := 2
 const PLAYER_START := Vector2(836, 810) * ROOM_SCALE
-const PREACHING_POSITION := Vector2(575, 380) * ROOM_SCALE
 const PULPIT_ENTRY_ZONE := Rect2(Vector2(500, 300) * ROOM_SCALE, Vector2(180, 160) * ROOM_SCALE)
-const BLOCKERS := [
-	Rect2(0, 0, 1672, 74),
-	Rect2(0, 0, 280, 941),
-	Rect2(1392, 0, 280, 941),
-	Rect2(280, 0, 115, 178),
-	Rect2(1277, 0, 115, 178),
-	Rect2(280, 756, 390, 185),
-	Rect2(1002, 756, 390, 185),
-	Rect2(520, 68, 632, 260),
-	Rect2(430, 440, 340, 330),
-	Rect2(890, 330, 360, 440),
-	Rect2(355, 360, 60, 370),
-	Rect2(1260, 360, 60, 370)
+
+const NAVIGATION_AREAS := [
+	{
+		"name": "CenterAisleNavigation",
+		"points": [
+			Vector2(774, 352),
+			Vector2(898, 352),
+			Vector2(898, 770),
+			Vector2(1020, 770),
+			Vector2(1020, 834),
+			Vector2(652, 834),
+			Vector2(652, 770),
+			Vector2(774, 770)
+		]
+	},
+	{
+		"name": "LeftAisleNavigation",
+		"points": [
+			Vector2(284, 342),
+			Vector2(404, 342),
+			Vector2(404, 760),
+			Vector2(652, 760),
+			Vector2(652, 834),
+			Vector2(284, 834)
+		]
+	},
+	{
+		"name": "RightAisleNavigation",
+		"points": [
+			Vector2(1268, 342),
+			Vector2(1388, 342),
+			Vector2(1388, 834),
+			Vector2(1020, 834),
+			Vector2(1020, 760),
+			Vector2(1268, 760)
+		]
+	}
 ]
 
 @onready var local_player: CharacterBody2D = %LocalPlayer
-@onready var object_layer: Node2D = $ObjectLayer
 @onready var interactables: Node2D = %Interactables
 @onready var hud: CanvasLayer = %HUD
 @onready var camera: Camera2D = %Camera2D
+@onready var preach_point: Marker2D = $Interactables/Pulpit/Preachpoint
+@onready var pulpit_foreground: Polygon2D = $ObjectLayer/PulpitForeground
 
 var current_interactable: Area2D
 var is_preaching := false
 
 func _ready() -> void:
 	local_player.global_position = PLAYER_START
+	_configure_player_collision()
 	camera.limit_left = 0
 	camera.limit_top = 0
 	camera.limit_right = ROOM_WIDTH
@@ -39,7 +66,7 @@ func _ready() -> void:
 	hud.set_player_name(GameState.player_name)
 	hud.set_status("Sanctuary")
 	hud.show_message("You enter the sanctuary.")
-	_create_blockers()
+	_create_navigation_regions()
 
 	for item in interactables.get_children():
 		if item.has_signal("focus_entered"):
@@ -68,22 +95,35 @@ func _unhandled_input(event: InputEvent) -> void:
 		if not message.is_empty():
 			hud.show_message(message)
 
-func _create_blockers() -> void:
-	for index in BLOCKERS.size():
-		var rect: Rect2 = BLOCKERS[index]
-		var body := StaticBody2D.new()
-		body.name = "RoomBlocker%s" % index
-		body.collision_layer = 1
-		body.collision_mask = 2
-		var shape := CollisionShape2D.new()
-		var rectangle := RectangleShape2D.new()
-		rectangle.size = rect.size * ROOM_SCALE
-		shape.shape = rectangle
-		shape.position = (rect.position + rect.size * 0.5) * ROOM_SCALE
-		body.add_child(shape)
-		object_layer.add_child(body)
+func _configure_player_collision() -> void:
+	local_player.set_collision_layer_value(PLAYER_COLLISION_LAYER, true)
+	local_player.set_collision_mask_value(WORLD_COLLISION_LAYER, true)
+
+func _create_navigation_regions() -> void:
+	for nav_area in NAVIGATION_AREAS:
+		var points := _scale_points(nav_area["points"])
+		var region := NavigationRegion2D.new()
+		var polygon := NavigationPolygon.new()
+		var indices := PackedInt32Array()
+
+		for index in points.size():
+			indices.append(index)
+
+		polygon.vertices = points
+		polygon.add_polygon(indices)
+		region.name = nav_area["name"]
+		region.navigation_polygon = polygon
+		add_child(region)
+
+func _scale_points(points: Array) -> PackedVector2Array:
+	var scaled_points := PackedVector2Array()
+	for point: Vector2 in points:
+		scaled_points.append(point * ROOM_SCALE)
+	return scaled_points
 
 func _on_interactable_focus_entered(interactable: Area2D) -> void:
+	if is_preaching:
+		return
 	current_interactable = interactable
 	hud.set_prompt(String(interactable.get("prompt_text")))
 
@@ -96,8 +136,9 @@ func _on_interactable_focus_exited(interactable: Area2D) -> void:
 
 func _start_preaching() -> void:
 	is_preaching = true
-	local_player.global_position = PREACHING_POSITION
+	local_player.global_position = preach_point.global_position
 	local_player.z_index = 20
+	pulpit_foreground.visible = true
 	local_player.call("face", "down")
 	local_player.call("set_controls_locked", true)
 	hud.set_status("Preaching")
@@ -106,6 +147,7 @@ func _start_preaching() -> void:
 
 func _end_preaching() -> void:
 	is_preaching = false
+	pulpit_foreground.visible = false
 	local_player.z_index = 0
 	local_player.call("set_controls_locked", false)
 	hud.set_status("Sanctuary")
