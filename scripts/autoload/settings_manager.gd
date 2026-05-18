@@ -7,6 +7,9 @@ const INPUTS := {
 	"move_right": [KEY_D, KEY_RIGHT],
 	"interact": [KEY_E],
 	"character_screen": [KEY_C],
+	"inventory_screen": [KEY_I],
+	"quests_screen": [KEY_Q],
+	"maps_screen": [KEY_M],
 	"debug_toggle": [KEY_F3]
 }
 

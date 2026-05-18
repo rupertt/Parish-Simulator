@@ -5,6 +5,9 @@ extends CanvasLayer
 @onready var status_label: Label = %StatusLabel
 @onready var top_bar: Control = $TopBar
 @onready var character_button: Button = %CharacterButton
+@onready var inventory_button: Button = %InventoryButton
+@onready var quests_button: Button = %QuestsButton
+@onready var maps_button: Button = %MapsButton
 @onready var prompt_panel: Control = %PromptPanel
 @onready var prompt_label: Label = %PromptLabel
 @onready var message_panel: Control = %MessagePanel
@@ -21,6 +24,9 @@ func _ready() -> void:
 	GameState.connection_status_changed.connect(set_status)
 	GameState.ui_screen_toggled.connect(_on_ui_screen_toggled)
 	character_button.pressed.connect(func() -> void: GameState.toggle_ui_screen("character"))
+	inventory_button.pressed.connect(func() -> void: GameState.toggle_ui_screen("inventory"))
+	quests_button.pressed.connect(func() -> void: GameState.toggle_ui_screen("quests"))
+	maps_button.pressed.connect(func() -> void: GameState.toggle_ui_screen("maps"))
 	set_player_name(GameState.player_name)
 	set_status(GameState.connection_status)
 	set_prompt("")
@@ -31,6 +37,18 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("character_screen"):
 		GameState.toggle_ui_screen("character")
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("inventory_screen"):
+		GameState.toggle_ui_screen("inventory")
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("quests_screen"):
+		GameState.toggle_ui_screen("quests")
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("maps_screen"):
+		GameState.toggle_ui_screen("maps")
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("debug_toggle"):
@@ -65,13 +83,16 @@ func show_message(value: String) -> void:
 	prompt_panel.visible = not current_prompt.is_empty()
 
 func _on_ui_screen_toggled(screen_id: String, is_open: bool) -> void:
-	if screen_id != "character":
+	if not ["character", "inventory", "quests", "maps"].has(screen_id):
 		return
-	character_button.disabled = is_open
+	character_button.disabled = is_open and screen_id == "character"
+	inventory_button.disabled = is_open and screen_id == "inventory"
+	quests_button.disabled = is_open and screen_id == "quests"
+	maps_button.disabled = is_open and screen_id == "maps"
 	if is_open:
 		message_panel.visible = false
 		prompt_panel.visible = false
-		character_screen.call("open_screen")
+		character_screen.call("open_screen", screen_id)
 	else:
 		character_screen.call("close_screen")
 		prompt_label.text = current_prompt
