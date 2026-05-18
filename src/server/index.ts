@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { WebSocketServer, type WebSocket } from 'ws';
 
 const PORT = Number(process.env.PORT) || 3000;
-const ROOM_WIDTH = 1254;
-const ROOM_HEIGHT = 1254;
+const ROOM_WIDTH = 1600;
+const ROOM_HEIGHT = 1400;
 const PLAYER_SIZE = 16;
 const PLAYER_SPEED = 92;
 const SPAWN_SPACING_X = 72;
@@ -15,89 +15,7 @@ const SPAWN_SPACING_Y = 56;
 const SIMULATION_RATE_MS = 1000 / 30;
 const STATE_BROADCAST_RATE_MS = 1000 / 15;
 const SHARED_ROOM = 'main';
-const MAP_COLLISION_SHAPES: MapCollisionShape[] = [
-  { kind: 'polygon', points: [{ x: 96, y: 118 }, { x: 208, y: 118 }, { x: 208, y: 184 }, { x: 190, y: 200 }, { x: 112, y: 200 }, { x: 96, y: 184 }] },
-  { kind: 'polygon', points: [{ x: 286, y: 120 }, { x: 390, y: 120 }, { x: 390, y: 188 }, { x: 374, y: 204 }, { x: 302, y: 204 }, { x: 286, y: 188 }] },
-  { kind: 'polygon', points: [{ x: 486, y: 122 }, { x: 604, y: 122 }, { x: 604, y: 188 }, { x: 586, y: 204 }, { x: 504, y: 204 }, { x: 486, y: 188 }] },
-  { kind: 'polygon', points: [{ x: 686, y: 126 }, { x: 796, y: 126 }, { x: 796, y: 192 }, { x: 778, y: 208 }, { x: 704, y: 208 }, { x: 686, y: 192 }] },
-  { kind: 'polygon', points: [{ x: 900, y: 126 }, { x: 1028, y: 126 }, { x: 1028, y: 200 }, { x: 1008, y: 218 }, { x: 920, y: 218 }, { x: 900, y: 200 }] },
-  { kind: 'polygon', points: [{ x: 1086, y: 122 }, { x: 1202, y: 122 }, { x: 1202, y: 194 }, { x: 1184, y: 210 }, { x: 1104, y: 210 }, { x: 1086, y: 194 }] },
-  { kind: 'polygon', points: [{ x: 192, y: 344 }, { x: 386, y: 344 }, { x: 386, y: 420 }, { x: 362, y: 442 }, { x: 216, y: 442 }, { x: 192, y: 420 }] },
-  { kind: 'polygon', points: [{ x: 900, y: 360 }, { x: 1122, y: 360 }, { x: 1122, y: 458 }, { x: 1096, y: 480 }, { x: 926, y: 480 }, { x: 900, y: 458 }] },
-  { kind: 'polygon', points: [{ x: 560, y: 350 }, { x: 714, y: 350 }, { x: 714, y: 542 }, { x: 692, y: 568 }, { x: 582, y: 568 }, { x: 560, y: 542 }] },
-  { kind: 'polygon', points: [{ x: 250, y: 562 }, { x: 412, y: 562 }, { x: 412, y: 650 }, { x: 388, y: 672 }, { x: 274, y: 672 }, { x: 250, y: 650 }] },
-  { kind: 'polygon', points: [{ x: 46, y: 648 }, { x: 190, y: 648 }, { x: 190, y: 732 }, { x: 168, y: 752 }, { x: 68, y: 752 }, { x: 46, y: 732 }] },
-  { kind: 'polygon', points: [{ x: 1044, y: 578 }, { x: 1178, y: 578 }, { x: 1178, y: 662 }, { x: 1160, y: 680 }, { x: 1062, y: 680 }, { x: 1044, y: 662 }] },
-  { kind: 'polygon', points: [{ x: 292, y: 790 }, { x: 426, y: 790 }, { x: 426, y: 872 }, { x: 406, y: 890 }, { x: 312, y: 890 }, { x: 292, y: 872 }] },
-  { kind: 'polygon', points: [{ x: 1114, y: 796 }, { x: 1244, y: 796 }, { x: 1244, y: 878 }, { x: 1226, y: 896 }, { x: 1132, y: 896 }, { x: 1114, y: 878 }] },
-  { kind: 'polygon', points: [{ x: 400, y: 1050 }, { x: 520, y: 1050 }, { x: 520, y: 1132 }, { x: 500, y: 1150 }, { x: 420, y: 1150 }, { x: 400, y: 1132 }] },
-  { kind: 'polygon', points: [{ x: 592, y: 1050 }, { x: 722, y: 1050 }, { x: 722, y: 1132 }, { x: 702, y: 1150 }, { x: 612, y: 1150 }, { x: 592, y: 1132 }] },
-  { kind: 'polygon', points: [{ x: 796, y: 1048 }, { x: 928, y: 1048 }, { x: 928, y: 1130 }, { x: 908, y: 1148 }, { x: 816, y: 1148 }, { x: 796, y: 1130 }] },
-  { kind: 'polygon', points: [{ x: 1040, y: 1050 }, { x: 1184, y: 1050 }, { x: 1184, y: 1134 }, { x: 1162, y: 1152 }, { x: 1062, y: 1152 }, { x: 1040, y: 1134 }] },
-  { kind: 'circle', position: { x: 28, y: 78 }, radius: 15 },
-  { kind: 'circle', position: { x: 125, y: 34 }, radius: 14 },
-  { kind: 'circle', position: { x: 224, y: 34 }, radius: 14 },
-  { kind: 'circle', position: { x: 348, y: 34 }, radius: 15 },
-  { kind: 'circle', position: { x: 492, y: 42 }, radius: 14 },
-  { kind: 'circle', position: { x: 594, y: 48 }, radius: 14 },
-  { kind: 'circle', position: { x: 772, y: 36 }, radius: 15 },
-  { kind: 'circle', position: { x: 968, y: 36 }, radius: 15 },
-  { kind: 'circle', position: { x: 1124, y: 36 }, radius: 15 },
-  { kind: 'circle', position: { x: 1225, y: 72 }, radius: 16 },
-  { kind: 'circle', position: { x: 30, y: 185 }, radius: 15 },
-  { kind: 'circle', position: { x: 1226, y: 240 }, radius: 16 },
-  { kind: 'circle', position: { x: 30, y: 380 }, radius: 16 },
-  { kind: 'circle', position: { x: 1222, y: 430 }, radius: 16 },
-  { kind: 'circle', position: { x: 1222, y: 628 }, radius: 16 },
-  { kind: 'circle', position: { x: 38, y: 850 }, radius: 16 },
-  { kind: 'circle', position: { x: 36, y: 1140 }, radius: 16 },
-  { kind: 'circle', position: { x: 146, y: 1210 }, radius: 15 },
-  { kind: 'circle', position: { x: 288, y: 1210 }, radius: 15 },
-  { kind: 'circle', position: { x: 510, y: 1210 }, radius: 15 },
-  { kind: 'circle', position: { x: 718, y: 1210 }, radius: 15 },
-  { kind: 'circle', position: { x: 908, y: 1210 }, radius: 15 },
-  { kind: 'circle', position: { x: 1148, y: 1210 }, radius: 16 },
-  { kind: 'circle', position: { x: 633, y: 778 }, radius: 28 },
-  { kind: 'circle', position: { x: 632, y: 826 }, radius: 20 },
-  { kind: 'circle', position: { x: 820, y: 764 }, radius: 12 },
-  { kind: 'circle', position: { x: 890, y: 764 }, radius: 12 },
-  { kind: 'circle', position: { x: 942, y: 820 }, radius: 12 },
-  { kind: 'circle', position: { x: 828, y: 850 }, radius: 12 },
-  { kind: 'circle', position: { x: 912, y: 866 }, radius: 12 },
-  { kind: 'circle', position: { x: 226, y: 520 }, radius: 12 },
-  { kind: 'circle', position: { x: 1180, y: 92 }, radius: 11 },
-  { kind: 'circle', position: { x: 1168, y: 415 }, radius: 12 },
-  { kind: 'capsule', from: { x: 72, y: 76 }, to: { x: 238, y: 76 }, radius: 5 },
-  { kind: 'capsule', from: { x: 74, y: 184 }, to: { x: 232, y: 184 }, radius: 5 },
-  { kind: 'capsule', from: { x: 274, y: 76 }, to: { x: 416, y: 76 }, radius: 5 },
-  { kind: 'capsule', from: { x: 274, y: 184 }, to: { x: 416, y: 184 }, radius: 5 },
-  { kind: 'capsule', from: { x: 476, y: 76 }, to: { x: 626, y: 76 }, radius: 5 },
-  { kind: 'capsule', from: { x: 476, y: 184 }, to: { x: 626, y: 184 }, radius: 5 },
-  { kind: 'capsule', from: { x: 672, y: 76 }, to: { x: 822, y: 76 }, radius: 5 },
-  { kind: 'capsule', from: { x: 672, y: 184 }, to: { x: 822, y: 184 }, radius: 5 },
-  { kind: 'capsule', from: { x: 886, y: 76 }, to: { x: 1048, y: 76 }, radius: 5 },
-  { kind: 'capsule', from: { x: 886, y: 184 }, to: { x: 1048, y: 184 }, radius: 5 },
-  { kind: 'capsule', from: { x: 1070, y: 76 }, to: { x: 1230, y: 76 }, radius: 5 },
-  { kind: 'capsule', from: { x: 1070, y: 184 }, to: { x: 1230, y: 184 }, radius: 5 },
-  { kind: 'capsule', from: { x: 460, y: 304 }, to: { x: 460, y: 570 }, radius: 8 },
-  { kind: 'capsule', from: { x: 796, y: 304 }, to: { x: 796, y: 586 }, radius: 8 },
-  { kind: 'capsule', from: { x: 530, y: 296 }, to: { x: 530, y: 445 }, radius: 9 },
-  { kind: 'capsule', from: { x: 746, y: 296 }, to: { x: 746, y: 455 }, radius: 9 },
-  { kind: 'capsule', from: { x: 56, y: 462 }, to: { x: 202, y: 462 }, radius: 6 },
-  { kind: 'capsule', from: { x: 56, y: 560 }, to: { x: 202, y: 560 }, radius: 6 },
-  { kind: 'capsule', from: { x: 864, y: 312 }, to: { x: 864, y: 500 }, radius: 6 },
-  { kind: 'capsule', from: { x: 1138, y: 312 }, to: { x: 1138, y: 470 }, radius: 6 },
-  { kind: 'capsule', from: { x: 862, y: 494 }, to: { x: 1138, y: 494 }, radius: 6 },
-  { kind: 'capsule', from: { x: 772, y: 726 }, to: { x: 1018, y: 726 }, radius: 7 },
-  { kind: 'capsule', from: { x: 772, y: 906 }, to: { x: 1018, y: 906 }, radius: 7 },
-  { kind: 'capsule', from: { x: 782, y: 724 }, to: { x: 782, y: 906 }, radius: 7 },
-  { kind: 'capsule', from: { x: 1010, y: 724 }, to: { x: 1010, y: 906 }, radius: 7 },
-  { kind: 'capsule', from: { x: 536, y: 718 }, to: { x: 536, y: 910 }, radius: 8 },
-  { kind: 'capsule', from: { x: 746, y: 718 }, to: { x: 746, y: 910 }, radius: 8 },
-  { kind: 'capsule', from: { x: 548, y: 732 }, to: { x: 724, y: 732 }, radius: 8 },
-  { kind: 'capsule', from: { x: 548, y: 894 }, to: { x: 724, y: 894 }, radius: 8 },
-  { kind: 'polygon', points: [{ x: 0, y: 845 }, { x: 120, y: 820 }, { x: 160, y: 930 }, { x: 265, y: 1015 }, { x: 260, y: 1254 }, { x: 0, y: 1254 }] }
-];
+const MAP_COLLISION_SHAPES: MapCollisionShape[] = [];
 
 type Direction = 'down' | 'up' | 'left' | 'right' | 'up_left' | 'up_right' | 'down_left' | 'down_right';
 type Point = {
@@ -105,6 +23,7 @@ type Point = {
   y: number;
 };
 type MapCollisionShape =
+  | { kind: 'footprint'; position: Point; size: Point }
   | { kind: 'polygon'; points: Point[] }
   | { kind: 'circle'; position: Point; radius: number }
   | { kind: 'capsule'; from: Point; to: Point; radius: number };
@@ -348,7 +267,26 @@ function collidesWithPolygon(point: Point, radius: number, polygon: Point[]): bo
   });
 }
 
+function footprintToPolygon(position: Point, size: Point): Point[] {
+  const halfWidth = size.x / 2;
+  const halfHeight = size.y / 2;
+  const bevel = Math.min(18, size.x * 0.18);
+
+  return [
+    { x: position.x - halfWidth + bevel, y: position.y - halfHeight },
+    { x: position.x + halfWidth - bevel, y: position.y - halfHeight },
+    { x: position.x + halfWidth, y: position.y - halfHeight + bevel },
+    { x: position.x + halfWidth, y: position.y + halfHeight },
+    { x: position.x - halfWidth, y: position.y + halfHeight },
+    { x: position.x - halfWidth, y: position.y - halfHeight + bevel }
+  ];
+}
+
 function collidesWithShape(point: Point, radius: number, shape: MapCollisionShape): boolean {
+  if (shape.kind === 'footprint') {
+    return collidesWithPolygon(point, radius, footprintToPolygon(shape.position, shape.size));
+  }
+
   if (shape.kind === 'circle') {
     const combinedRadius = radius + shape.radius;
     return distanceSquared(point, shape.position) <= combinedRadius * combinedRadius;
@@ -402,8 +340,8 @@ function createPlayer(id: string, name: string, characterId: CharacterId): Playe
     room: SHARED_ROOM,
     name,
     characterId,
-    x: 650 + (roomCount % 5) * SPAWN_SPACING_X,
-    y: 635 + Math.floor(roomCount / 5) * SPAWN_SPACING_Y,
+    x: 800 + (roomCount % 5) * SPAWN_SPACING_X,
+    y: 650 + Math.floor(roomCount / 5) * SPAWN_SPACING_Y,
     color: characters[characterId].color,
     facing: 'down',
     moving: false
