@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://dvi0w57ohp2k"]
+
+[ext_resource type="PackedScene" path="res://scenes/player/LocalPlayer.tscn" id="1_sirnt"]
+[ext_resource type="PackedScene" uid="uid://cade21tnake57" path="res://scenes/props/house_prop.tscn" id="2_a8mjx"]
+
+[node name="New Map" type="Node2D" unique_id=55299578]
+
+[node name="Background" type="ColorRect" parent="." unique_id=1081272302]
+offset_left = 1.0
+offset_right = 1281.0
+offset_bottom = 720.0
+color = Color(0.9243433, 0.47705978, 0.6412574, 1)
+
+[node name="World" type="Node2D" parent="." unique_id=1835316067]
+y_sort_enabled = true
+
+[node name="LocalPlayer" parent="World" unique_id=282003353 groups=["player"] instance=ExtResource("1_sirnt")]
+position = Vector2(289, 205)
+collision_layer = 3
+
+[node name="HouseProp2" parent="World" unique_id=1515214201 instance=ExtResource("2_a8mjx")]
+position = Vector2(448.0001, 145.00002)
+scale = Vector2(0.8, 0.8)

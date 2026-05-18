@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://cade21tnake57"]
+
+[ext_resource type="Texture2D" uid="uid://cpe7jb5wfk0mh" path="res://assets/props/house_exact.png" id="1_house_texture"]
+[ext_resource type="Script" uid="uid://bdw1nel43q47h" path="res://scripts/door_interact.gd" id="2_door_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_house_block"]
+size = Vector2(289, 100)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door_area"]
+size = Vector2(79, 81.5)
+
+[node name="HouseProp" type="Node2D" unique_id=1018391009]
+position = Vector2(65, 69)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1692524025]
+texture_filter = 1
+position = Vector2(-32.000004, -41.000015)
+scale = Vector2(0.35, 0.35)
+texture = ExtResource("1_house_texture")
+
+[node name="Collision" type="StaticBody2D" parent="." unique_id=1801257308]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Collision" unique_id=374404344]
+position = Vector2(-28.5, -39)
+shape = SubResource("RectangleShape2D_house_block")
+
+[node name="DoorArea" type="Area2D" parent="." unique_id=2065469295]
+script = ExtResource("2_door_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorArea" unique_id=661786564]
+position = Vector2(-40, 77)
+shape = SubResource("RectangleShape2D_door_area")
