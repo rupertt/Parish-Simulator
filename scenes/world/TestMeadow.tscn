@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://dyk3gef6msqug" path="res://scripts/world/test_meadow.gd" id="1_world"]
 [ext_resource type="PackedScene" path="res://scenes/player/LocalPlayer.tscn" id="2_local"]
 [ext_resource type="PackedScene" uid="uid://hud" path="res://scenes/ui/HUD.tscn" id="4_hud"]
-[ext_resource type="PackedScene" uid="uid://c0qbke11l666n" path="res://scenes/props/big_cathedral_prop.tscn" id="4_iyplb"]
+[ext_resource type="PackedScene" uid="uid://b15qekbein7ox" path="res://scenes/props/parish_church_prop.tscn" id="4_iyplb"]
 
 [sub_resource type="RectangleShape2D" id="BoundaryHorizontal"]
 size = Vector2(1600, 24)
@@ -17,6 +17,7 @@ script = ExtResource("1_world")
 [node name="GroundLayer" type="Node2D" parent="." unique_id=63615532]
 
 [node name="ObjectLayer" type="Node2D" parent="." unique_id=1122400631]
+y_sort_enabled = true
 
 [node name="NorthBoundary" type="StaticBody2D" parent="ObjectLayer" unique_id=1448808679]
 collision_mask = 2
@@ -46,28 +47,26 @@ collision_mask = 2
 position = Vector2(1588, 700)
 shape = SubResource("BoundaryVertical")
 
-[node name="Interactables" type="Node2D" parent="." unique_id=132772417]
+[node name="RemotePlayers" type="Node2D" parent="ObjectLayer" unique_id=1302878877]
 unique_name_in_owner = true
 
-[node name="RemotePlayers" type="Node2D" parent="." unique_id=1302878877]
+[node name="LocalPlayer" parent="ObjectLayer" unique_id=251277298 instance=ExtResource("2_local")]
 unique_name_in_owner = true
-
-[node name="LocalPlayer" parent="." unique_id=251277298 instance=ExtResource("2_local")]
-unique_name_in_owner = true
-z_index = 20
 position = Vector2(800, 650)
 
-[node name="Camera2D" type="Camera2D" parent="LocalPlayer" unique_id=308156508]
+[node name="Camera2D" type="Camera2D" parent="ObjectLayer/LocalPlayer" unique_id=308156508]
 unique_name_in_owner = true
 position = Vector2(0, -70)
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 
+[node name="ParishChurchProp" parent="ObjectLayer" unique_id=1173871393 instance=ExtResource("4_iyplb")]
+position = Vector2(877, 459)
+
+[node name="Interactables" type="Node2D" parent="." unique_id=132772417]
+unique_name_in_owner = true
+
 [node name="AbovePlayerLayer" type="Node2D" parent="." unique_id=586747319]
 
 [node name="HUD" parent="." unique_id=1285257098 instance=ExtResource("4_hud")]
 unique_name_in_owner = true
-
-[node name="BigCathedralProp" parent="." unique_id=1296680933 instance=ExtResource("4_iyplb")]
-y_sort_enabled = true
-position = Vector2(29, 123)

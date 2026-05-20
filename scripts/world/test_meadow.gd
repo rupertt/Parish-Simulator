@@ -87,6 +87,7 @@ func _ready() -> void:
 	_create_village_objects()
 	_create_map_collision()
 	_create_map_editor_ui()
+	_build_static_scene_occluders()
 	local_player.input_changed.connect(_on_local_input_changed)
 	NetworkManager.connected.connect(_on_network_connected)
 	NetworkManager.snapshot_received.connect(_on_snapshot_received)
@@ -204,6 +205,7 @@ func _add_depth_for_object(sprite: Sprite2D, definition: Dictionary) -> void:
 	foreground.rotation = sprite.rotation
 	foreground.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	foreground.z_index = 80
+	foreground.add_to_group("player_occluder_foreground")
 	foreground.set_meta("editor_companion", true)
 	foreground.set_meta("source_object", sprite.name)
 	above_player_layer.add_child(foreground)
@@ -225,6 +227,38 @@ func _add_depth_for_object(sprite: Sprite2D, definition: Dictionary) -> void:
 	sprite.set_meta("foreground_path", foreground.get_path())
 	sprite.set_meta("collision_path", body.get_path())
 	_sync_depth_for_object(sprite)
+
+func _build_static_scene_occluders() -> void:
+	# Covers props manually placed in TestMeadow.tscn (not created via map editor definitions).
+	for child in object_layer.get_children():
+		var prop := child as Node2D
+		if prop == null:
+			continue
+		if bool(prop.get_meta("editor_companion", false)) or prop.has_meta("foreground_path"):
+			continue
+		var sprite := prop.get_node_or_null("Sprite2D") as Sprite2D
+		if sprite == null or sprite.texture == null:
+			continue
+		_add_generic_occluder_for_sprite(prop, sprite, 0.74)
+
+func _add_generic_occluder_for_sprite(prop: Node2D, sprite: Sprite2D, crop_ratio: float) -> void:
+	var texture_size := sprite.texture.get_size()
+	var foreground_height := clampi(int(round(texture_size.y * crop_ratio)), 1, int(texture_size.y))
+	var foreground := Sprite2D.new()
+	foreground.name = "%sForeground" % prop.name
+	foreground.texture = sprite.texture
+	foreground.region_enabled = true
+	foreground.region_rect = Rect2(Vector2.ZERO, Vector2(texture_size.x, foreground_height))
+	foreground.scale = sprite.global_scale
+	foreground.rotation = sprite.global_rotation
+	foreground.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	foreground.z_index = 80
+	foreground.add_to_group("player_occluder_foreground")
+	foreground.set_meta("editor_companion", true)
+	foreground.set_meta("source_object", prop.name)
+	above_player_layer.add_child(foreground)
+	var local_offset := Vector2(0.0, (foreground_height - texture_size.y) * sprite.global_scale.y * 0.5)
+	foreground.position = sprite.global_position + local_offset.rotated(sprite.global_rotation)
 
 func _add_church_entry_for_object(sprite: Sprite2D, definition: Dictionary) -> void:
 	if sprite.texture == null:
@@ -540,6 +574,7 @@ func _create_map_editor_ui() -> void:
 	editor_selection_box.z_index = 200
 	editor_selection_box.visible = false
 	object_layer.add_child(editor_selection_box)
+
 
 func _select_editor_type(object_type: String) -> void:
 	selected_editor_type = object_type

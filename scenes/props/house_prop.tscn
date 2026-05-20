@@ -16,13 +16,13 @@ position = Vector2(65, 69)
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1692524025]
 y_sort_enabled = true
 texture_filter = 1
-position = Vector2(77.79999, -51.799995)
+position = Vector2(75.79999, -130.79999)
 scale = Vector2(0.35, 0.35)
 texture = ExtResource("1_house_texture")
 
 [node name="Collision" type="StaticBody2D" parent="." unique_id=1801257308]
 y_sort_enabled = true
-position = Vector2(109.8, -10.799988)
+position = Vector2(107.8, -89.79999)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision" unique_id=374404344]
 y_sort_enabled = true
@@ -31,7 +31,7 @@ shape = SubResource("RectangleShape2D_house_block")
 
 [node name="DoorArea" type="Area2D" parent="." unique_id=2065469295]
 y_sort_enabled = true
-position = Vector2(109.8, -10.799988)
+position = Vector2(107.8, -89.79999)
 script = ExtResource("2_door_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DoorArea" unique_id=661786564]

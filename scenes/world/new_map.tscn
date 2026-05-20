@@ -26,7 +26,6 @@ position_smoothing_speed = 8.0
 [node name="HouseProp2" parent="World" unique_id=1515214201 instance=ExtResource("2_a8mjx")]
 position = Vector2(368, 164)
 scale = Vector2(0.8, 0.8)
-y_sort_origin = -69
 
 [node name="ParishChurchProp" parent="World" unique_id=1745641608 instance=ExtResource("3_a8mjx")]
 position = Vector2(678, 92)

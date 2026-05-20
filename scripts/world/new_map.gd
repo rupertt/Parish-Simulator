@@ -3,7 +3,9 @@ extends Node2D
 const DEFAULT_FOREGROUND_CROP := 0.72
 const FOREGROUND_CROP_BY_PROP := {
 	"HouseProp": 0.72,
-	"HouseProp2": 0.72,
+	# Keep only the upper roof as foreground so the player can render in front
+	# near the lower doorway/foundation area.
+	"HouseProp2": 0.56,
 	"ParishChurchProp": 0.74,
 	"GothicCathedralProp": 0.78,
 	"BigCathedralProp": 0.78,
@@ -44,6 +46,7 @@ func _build_occluder_foregrounds() -> void:
 		foreground.region_rect = Rect2(Vector2.ZERO, Vector2(texture_size.x, foreground_height))
 		foreground.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		foreground.z_index = 80
+		foreground.add_to_group("player_occluder_foreground")
 		foreground.set_meta("source_prop_path", child.get_path())
 		foreground.set_meta("source_sprite_path", source_sprite.get_path())
 		above_player_layer.add_child(foreground)

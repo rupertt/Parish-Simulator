@@ -22,6 +22,8 @@ var _walk_animator := DirectionalWalkAnimator.new()
 func _ready() -> void:
 	body.modulate = GameState.character_color
 	_apply_character_animation(GameState.character_walk_sheet_path)
+	if not GameState.character_changed.is_connected(_on_character_changed):
+		GameState.character_changed.connect(_on_character_changed)
 	_update_occlusion_visual()
 
 func _physics_process(delta: float) -> void:
@@ -51,6 +53,7 @@ func _physics_process(delta: float) -> void:
 		input_changed.emit(direction, facing)
 
 	_update_direction_color(is_moving)
+	_update_scene_occlusion_state()
 
 func is_local_player() -> bool:
 	return true
@@ -127,6 +130,11 @@ func _apply_character_animation(walk_sheet_path: String) -> void:
 	_sync_outline_sprite()
 	_update_occlusion_visual()
 
+func _on_character_changed(_new_character_id: String) -> void:
+	body.modulate = GameState.character_color
+	_apply_character_animation(GameState.character_walk_sheet_path)
+	_update_animation(velocity.length() > 0.0)
+
 func _sync_outline_sprite() -> void:
 	occlusion_outline_sprite.texture = body_sprite.texture
 	occlusion_outline_sprite.position = body_sprite.position
@@ -139,3 +147,29 @@ func _update_occlusion_visual() -> void:
 	occlusion_outline_body.visible = occluded and not use_sprite_outline
 	if use_sprite_outline:
 		_sync_outline_sprite()
+
+func _update_scene_occlusion_state() -> void:
+	var player_rect := _get_global_sprite_rect()
+	if player_rect.size == Vector2.ZERO:
+		set_occluded(false)
+		return
+
+	for node in get_tree().get_nodes_in_group("player_occluder_foreground"):
+		var sprite := node as Sprite2D
+		if sprite == null or not sprite.visible or sprite.texture == null:
+			continue
+		if _get_sprite_rect(sprite).intersects(player_rect):
+			set_occluded(true)
+			return
+	set_occluded(false)
+
+func _get_global_sprite_rect() -> Rect2:
+	if body_sprite == null or body_sprite.texture == null:
+		return Rect2()
+	return _get_sprite_rect(body_sprite)
+
+func _get_sprite_rect(sprite: Sprite2D) -> Rect2:
+	var size: Vector2 = sprite.region_rect.size if sprite.region_enabled else sprite.texture.get_size()
+	var scaled_size := size * sprite.global_scale.abs()
+	var center := sprite.global_position
+	return Rect2(center - scaled_size * 0.5, scaled_size)

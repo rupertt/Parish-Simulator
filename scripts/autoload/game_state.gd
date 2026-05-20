@@ -2,6 +2,7 @@ extends Node
 
 signal connection_status_changed(status: String)
 signal ui_screen_toggled(screen_id: String, is_open: bool)
+signal character_changed(character_id: String)
 
 var player_name: String = "Player"
 var server_url: String = "ws://localhost:3000/ws"
@@ -51,6 +52,7 @@ func select_character(new_character_id: String) -> void:
 			character_icon_path = String(character["icon"])
 			character_walk_sheet_path = String(character["walk_sheet"])
 			character_scale = float(character.get("scale", 0.18))
+			character_changed.emit(character_id)
 			return
 	character_id = CHARACTERS[0]["id"]
 	character_name = CHARACTERS[0]["name"]
@@ -58,6 +60,7 @@ func select_character(new_character_id: String) -> void:
 	character_icon_path = String(CHARACTERS[0]["icon"])
 	character_walk_sheet_path = String(CHARACTERS[0]["walk_sheet"])
 	character_scale = float(CHARACTERS[0].get("scale", 0.18))
+	character_changed.emit(character_id)
 
 func get_character(character_id_value: String) -> Dictionary:
 	for character in CHARACTERS:
