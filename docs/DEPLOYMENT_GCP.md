@@ -67,6 +67,24 @@ Create two GitHub push triggers for `rupertt/Parish-Simulator`.
   - `_APP_ENV=testing`
   - `_REGION=us-central1`
   - `_ARTIFACT_REPOSITORY=parish-simulator`
+  - `_EXTERNAL_PCK_URL=https://storage.googleapis.com/<bucket>/index.pck`
+
+## External `index.pck` (recommended)
+
+When `index.pck` is too large for direct Cloud Run responses, host it in Cloud Storage and point Cloud Run at that object URL.
+
+Upload the latest pack after web export:
+
+```bash
+gcloud storage cp web-export/index.pck gs://<bucket>/index.pck
+gcloud storage objects update gs://<bucket>/index.pck --add-acl-grant=entity=AllUsers,role=READER
+```
+
+Then set trigger substitution:
+
+```text
+_EXTERNAL_PCK_URL=https://storage.googleapis.com/<bucket>/index.pck
+```
 
 ## Runtime Notes
 

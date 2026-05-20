@@ -28,7 +28,7 @@ steps:
       - --max-instances=1
       - --concurrency=80
       - --timeout=3600
-      - --set-env-vars=NODE_ENV=production,APP_ENV=${_APP_ENV},PRODUCTION_URL=${_PRODUCTION_URL},TESTING_URL=${_TESTING_URL}
+      - --set-env-vars=NODE_ENV=production,APP_ENV=${_APP_ENV},PRODUCTION_URL=${_PRODUCTION_URL},TESTING_URL=${_TESTING_URL},EXTERNAL_PCK_URL=${_EXTERNAL_PCK_URL}
 
 images:
   - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_ARTIFACT_REPOSITORY}/${_SERVICE_NAME}:$BUILD_ID
@@ -40,6 +40,7 @@ substitutions:
   _APP_ENV: production
   _PRODUCTION_URL: ''
   _TESTING_URL: ''
+  _EXTERNAL_PCK_URL: ''
 
 options:
   logging: CLOUD_LOGGING_ONLY

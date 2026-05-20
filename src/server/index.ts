@@ -102,6 +102,7 @@ const characters: Record<CharacterId, { color: string }> = {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const webExportPath = path.resolve(__dirname, '../../web-export');
+const externalPckUrl = process.env.EXTERNAL_PCK_URL?.trim() || '';
 const compressedAssetTypes: Record<string, string> = {
   '.js': 'application/javascript; charset=utf-8',
   '.wasm': 'application/wasm'
@@ -145,9 +146,17 @@ app.get('/config', (req, res) => {
     appEnv,
     webSocketUrl: currentWebSocketUrl,
     productionUrl: process.env.PRODUCTION_URL || (appEnv === 'production' ? currentUrl : ''),
-    testingUrl: process.env.TESTING_URL || (appEnv === 'testing' ? currentUrl : '')
+    testingUrl: process.env.TESTING_URL || (appEnv === 'testing' ? currentUrl : ''),
+    externalPckUrl
   });
 });
+
+if (externalPckUrl) {
+  app.get('/index.pck', (_req, res) => {
+    applyNoCacheHeaders(res);
+    res.redirect(302, externalPckUrl);
+  });
+}
 
 if (process.env.NODE_ENV !== 'production') {
   app.get('/debug/rooms', (_req, res) => {
