@@ -1,0 +1,103 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "3967bbfa-5b9d-4f06-9f9b-e71f8d293a02",
+        "name": "an old priest with a",
+        "prompt": "an old priest with a cross chain around his neck and a bible in his hand",
+        "size": {
+          "width": 92,
+          "height": 92
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-05-20T12:41:43.650326+00:00"
+      },
+      "folder": "an_old_priest_with_a",
+      "frames": {
+        "rotations": {
+          "south": "an_old_priest_with_a/rotations/south.png",
+          "south-east": "an_old_priest_with_a/rotations/south-east.png",
+          "east": "an_old_priest_with_a/rotations/east.png",
+          "north-east": "an_old_priest_with_a/rotations/north-east.png",
+          "north": "an_old_priest_with_a/rotations/north.png",
+          "north-west": "an_old_priest_with_a/rotations/north-west.png",
+          "west": "an_old_priest_with_a/rotations/west.png",
+          "south-west": "an_old_priest_with_a/rotations/south-west.png"
+        },
+        "animations": {
+          "animation-fcd83e09": {
+            "south-east": [
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-east/frame_000.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-east/frame_001.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-east/frame_002.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-east/frame_003.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-east/frame_004.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-east/frame_005.png"
+            ],
+            "south": [
+              "an_old_priest_with_a/animations/animation-fcd83e09/south/frame_000.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south/frame_001.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south/frame_002.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south/frame_003.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south/frame_004.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south/frame_005.png"
+            ],
+            "north-east": [
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-east/frame_000.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-east/frame_001.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-east/frame_002.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-east/frame_003.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-east/frame_004.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-east/frame_005.png"
+            ],
+            "south-west": [
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-west/frame_000.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-west/frame_001.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-west/frame_002.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-west/frame_003.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-west/frame_004.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/south-west/frame_005.png"
+            ],
+            "west": [
+              "an_old_priest_with_a/animations/animation-fcd83e09/west/frame_000.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/west/frame_001.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/west/frame_002.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/west/frame_003.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/west/frame_004.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/west/frame_005.png"
+            ],
+            "east": [
+              "an_old_priest_with_a/animations/animation-fcd83e09/east/frame_000.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/east/frame_001.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/east/frame_002.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/east/frame_003.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/east/frame_004.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/east/frame_005.png"
+            ],
+            "north": [
+              "an_old_priest_with_a/animations/animation-fcd83e09/north/frame_000.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north/frame_001.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north/frame_002.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north/frame_003.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north/frame_004.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north/frame_005.png"
+            ],
+            "north-west": [
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-west/frame_000.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-west/frame_001.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-west/frame_002.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-west/frame_003.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-west/frame_004.png",
+              "an_old_priest_with_a/animations/animation-fcd83e09/north-west/frame_005.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-05-20T12:56:56.158018"
+}

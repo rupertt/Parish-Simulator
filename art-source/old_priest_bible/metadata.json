@@ -1,0 +1,36 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "f01926a3-5b68-497b-9955-50410ab83571",
+        "name": "an old priest, with a",
+        "prompt": "an old priest, with a cross chain around his neck and he's holding a large bible",
+        "size": {
+          "width": 120,
+          "height": 120
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-05-20T12:36:54.970359+00:00"
+      },
+      "folder": "an_old_priest_with_a",
+      "frames": {
+        "rotations": {
+          "south": "an_old_priest_with_a/rotations/south.png",
+          "south-east": "an_old_priest_with_a/rotations/south-east.png",
+          "east": "an_old_priest_with_a/rotations/east.png",
+          "north-east": "an_old_priest_with_a/rotations/north-east.png",
+          "north": "an_old_priest_with_a/rotations/north.png",
+          "north-west": "an_old_priest_with_a/rotations/north-west.png",
+          "west": "an_old_priest_with_a/rotations/west.png",
+          "south-west": "an_old_priest_with_a/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-05-20T12:41:53.936324"
+}

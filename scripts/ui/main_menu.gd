@@ -21,6 +21,7 @@ func _build_character_list() -> void:
 		child.queue_free()
 	_buttons.clear()
 	_selectable_characters = GameState.get_selectable_characters()
+	character_grid.columns = max(1, _selectable_characters.size())
 
 	for character in _selectable_characters:
 		var button := Button.new()

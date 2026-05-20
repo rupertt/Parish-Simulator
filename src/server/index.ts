@@ -104,7 +104,6 @@ const __dirname = path.dirname(__filename);
 const webExportPath = path.resolve(__dirname, '../../web-export');
 const compressedAssetTypes: Record<string, string> = {
   '.js': 'application/javascript; charset=utf-8',
-  '.pck': 'application/octet-stream',
   '.wasm': 'application/wasm'
 };
 const noCacheHeaders: Record<string, string> = {
@@ -163,7 +162,7 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-app.get(['/index.js', '/index.pck', '/index.wasm'], (req, res, next) => {
+app.get(['/index.js', '/index.wasm'], (req, res, next) => {
   const extension = path.extname(req.path);
   const contentType = compressedAssetTypes[extension];
   const gzipPath = path.join(webExportPath, `${path.basename(req.path)}.gz`);

@@ -4,7 +4,7 @@ extends CharacterBody2D
 signal input_changed(direction: Vector2, facing: String)
 
 const SPEED := 92.0
-const CHARACTER_SCALE := 0.18
+const DEFAULT_CHARACTER_SCALE := 0.18
 const WALK_BOB_AMOUNT := 0.7
 
 @onready var body: Polygon2D = %Body
@@ -95,7 +95,8 @@ func _get_move_direction() -> Vector2:
 
 func _update_animation(is_moving: bool) -> void:
 	# Scale the source pixel art up in-engine without stretching the sprite.
-	body_sprite.scale = Vector2(CHARACTER_SCALE, CHARACTER_SCALE)
+	var scale_value: float = max(0.01, GameState.character_scale if GameState.character_scale > 0.0 else DEFAULT_CHARACTER_SCALE)
+	body_sprite.scale = Vector2(scale_value, scale_value)
 	body_sprite.rotation = 0.0
 
 	if is_moving:
