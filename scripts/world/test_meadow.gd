@@ -754,6 +754,7 @@ func start_session() -> void:
 	NetworkManager.connect_to_server(GameState.server_url, GameState.player_name)
 
 func _process(_delta: float) -> void:
+	_update_local_player_occlusion()
 	hud.update_debug(local_player.global_position, PlayerRegistry.count())
 	if current_interactable == null:
 		hud.set_prompt("")
@@ -788,6 +789,31 @@ func _get_nearest_interactable() -> Area2D:
 			nearest = interactable
 			nearest_distance = distance
 	return nearest
+
+func _update_local_player_occlusion() -> void:
+	if local_player == null:
+		return
+	var player_rect := _get_sprite_global_rect(local_player.body_sprite)
+	if player_rect.size == Vector2.ZERO:
+		local_player.set_occluded(false)
+		return
+	var occluded := false
+	for child in above_player_layer.get_children():
+		var foreground := child as Sprite2D
+		if foreground == null or not foreground.visible:
+			continue
+		if _get_sprite_global_rect(foreground).intersects(player_rect):
+			occluded = true
+			break
+	local_player.set_occluded(occluded)
+
+func _get_sprite_global_rect(sprite: Sprite2D) -> Rect2:
+	if sprite == null or sprite.texture == null:
+		return Rect2()
+	var size: Vector2 = sprite.region_rect.size if sprite.region_enabled else sprite.texture.get_size()
+	var scaled_size := size * sprite.global_scale.abs()
+	var center := sprite.global_position
+	return Rect2(center - scaled_size * 0.5, scaled_size)
 
 func _handle_map_editor_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:

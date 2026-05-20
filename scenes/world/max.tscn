@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://dx21we44aamrx"]
+
+[ext_resource type="PackedScene" path="res://scenes/player/LocalPlayer.tscn" id="1_cntsa"]
+[ext_resource type="PackedScene" uid="uid://b15qekbein7ox" path="res://scenes/props/parish_church_prop.tscn" id="3_fv81c"]
+
+[node name="Max" type="Node2D" unique_id=2000687249]
+
+[node name="World" type="Node2D" parent="." unique_id=1881208870]
+y_sort_enabled = true
+
+[node name="LocalPlayer" parent="World" unique_id=34211599 groups=["player"] instance=ExtResource("1_cntsa")]
+position = Vector2(290, 206)
+collision_layer = 3
+
+[node name="Camera2D" type="Camera2D" parent="World/LocalPlayer" unique_id=1937063677]
+position = Vector2(0, -70)
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+
+[node name="ParishChurchProp" parent="World" unique_id=1173871393 instance=ExtResource("3_fv81c")]
+position = Vector2(416, 59)

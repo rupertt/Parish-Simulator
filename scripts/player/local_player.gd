@@ -9,9 +9,12 @@ const WALK_BOB_AMOUNT := 0.7
 
 @onready var body: Polygon2D = %Body
 @onready var body_sprite: Sprite2D = %BodySprite
+@onready var occlusion_outline_body: Polygon2D = %OcclusionOutlineBody
+@onready var occlusion_outline_sprite: Sprite2D = %OcclusionOutlineSprite
 
 var facing := "down"
 var controls_locked := false
+var occluded := false
 var _animation_time := 0.0
 var _last_direction := Vector2.ZERO
 var _walk_animator := DirectionalWalkAnimator.new()
@@ -19,6 +22,7 @@ var _walk_animator := DirectionalWalkAnimator.new()
 func _ready() -> void:
 	body.modulate = GameState.character_color
 	_apply_character_animation(GameState.character_walk_sheet_path)
+	_update_occlusion_visual()
 
 func _physics_process(delta: float) -> void:
 	if controls_locked or GameState.is_ui_screen_open():
@@ -50,6 +54,12 @@ func _physics_process(delta: float) -> void:
 
 func is_local_player() -> bool:
 	return true
+
+func set_occluded(is_occluded: bool) -> void:
+	if occluded == is_occluded:
+		return
+	occluded = is_occluded
+	_update_occlusion_visual()
 
 func set_controls_locked(is_locked: bool) -> void:
 	controls_locked = is_locked
@@ -96,10 +106,13 @@ func _update_animation(is_moving: bool) -> void:
 		body_sprite.texture = _walk_animator.get_idle_texture(facing)
 		body_sprite.position = Vector2.ZERO
 
+	_sync_outline_sprite()
+
 func _update_direction_color(is_moving: bool) -> void:
 	var base := GameState.character_color
 	body.modulate = base.lightened(0.12) if is_moving else base
 	body_sprite.modulate = Color(1.08, 1.08, 1.08, 1.0) if is_moving else Color.WHITE
+	occlusion_outline_body.color = Color(0.93, 0.98, 1.0, 0.92 if is_moving else 0.85)
 
 func _apply_character_animation(walk_sheet_path: String) -> void:
 	# The selected character chooses the sheet; the animator handles all slicing.
@@ -110,3 +123,18 @@ func _apply_character_animation(walk_sheet_path: String) -> void:
 	else:
 		body_sprite.visible = false
 		body.visible = true
+	_sync_outline_sprite()
+	_update_occlusion_visual()
+
+func _sync_outline_sprite() -> void:
+	occlusion_outline_sprite.texture = body_sprite.texture
+	occlusion_outline_sprite.position = body_sprite.position
+	occlusion_outline_sprite.scale = body_sprite.scale
+	occlusion_outline_sprite.rotation = body_sprite.rotation
+
+func _update_occlusion_visual() -> void:
+	var use_sprite_outline := occluded and body_sprite.visible and body_sprite.texture != null
+	occlusion_outline_sprite.visible = use_sprite_outline
+	occlusion_outline_body.visible = occluded and not use_sprite_outline
+	if use_sprite_outline:
+		_sync_outline_sprite()

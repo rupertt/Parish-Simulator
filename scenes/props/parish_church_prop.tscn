@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://b15qekbein7ox"]
+
+[ext_resource type="Texture2D" uid="uid://cyv2nt4faqbdc" path="res://assets/art/objects/parish_church.png" id="1_church_texture"]
+[ext_resource type="Script" uid="uid://bdw1nel43q47h" path="res://scripts/door_interact.gd" id="2_door_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_church_block"]
+size = Vector2(117.5, 135)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door_area"]
+size = Vector2(50, 39)
+
+[node name="ParishChurchProp" type="Node2D" unique_id=1173871393]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=336260627]
+texture_filter = 1
+position = Vector2(-6, 55)
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("1_church_texture")
+
+[node name="Collision" type="StaticBody2D" parent="." unique_id=1533270527]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Collision" unique_id=609634062]
+position = Vector2(-5.75, 65.5)
+shape = SubResource("RectangleShape2D_church_block")
+
+[node name="DoorArea" type="Area2D" parent="." unique_id=1258761153]
+script = ExtResource("2_door_script")
+interaction_name = "Parish Church Door"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorArea" unique_id=1250534950]
+position = Vector2(-7, 161.5)
+shape = SubResource("RectangleShape2D_door_area")

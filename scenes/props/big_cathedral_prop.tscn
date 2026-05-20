@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://c0qbke11l666n"]
+
+[ext_resource type="Texture2D" uid="uid://rq3yro6wu0su" path="res://assets/art/objects/big_cathedral.png" id="1_cathedral_texture"]
+[ext_resource type="Script" uid="uid://bdw1nel43q47h" path="res://scripts/door_interact.gd" id="2_door_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1m7x5"]
+size = Vector2(791.375, 337.875)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fovft"]
+size = Vector2(546, 320.5)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tlv7k"]
+size = Vector2(50, 153.5)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door_area"]
+size = Vector2(90, 78.5)
+
+[node name="BigCathedralProp" type="Node2D" unique_id=1296680933]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=269578799]
+texture_filter = 1
+position = Vector2(406, 111)
+texture = ExtResource("1_cathedral_texture")
+
+[node name="Collision" type="StaticBody2D" parent="." unique_id=773975503]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Collision" unique_id=479823694]
+position = Vector2(412, 173)
+shape = SubResource("RectangleShape2D_1m7x5")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Collision" unique_id=205089789]
+position = Vector2(424, 506)
+shape = SubResource("RectangleShape2D_fovft")
+
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="Collision" unique_id=1842191105]
+position = Vector2(113, 422)
+shape = SubResource("RectangleShape2D_tlv7k")
+
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="Collision" unique_id=1697965479]
+position = Vector2(725, 422)
+shape = SubResource("RectangleShape2D_tlv7k")
+
+[node name="DoorArea" type="Area2D" parent="." unique_id=1589432448]
+script = ExtResource("2_door_script")
+interaction_name = "Grand Cathedral Door"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorArea" unique_id=587045692]
+position = Vector2(412, 697)
+shape = SubResource("RectangleShape2D_door_area")

@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://l2rhpsqkmk6l"]
+
+[ext_resource type="Texture2D" uid="uid://den5pwn171733" path="res://assets/art/objects/gothic_cathedral.png" id="1_cathedral_texture"]
+[ext_resource type="Script" uid="uid://bdw1nel43q47h" path="res://scripts/door_interact.gd" id="2_door_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cathedral_block"]
+size = Vector2(137.5, 143.5)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door_area"]
+size = Vector2(18.5, 16.5)
+
+[node name="GothicCathedralProp" type="Node2D" unique_id=124037287]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=657295539]
+texture_filter = 1
+position = Vector2(71, 44)
+scale = Vector2(0.22, 0.22)
+texture = ExtResource("1_cathedral_texture")
+
+[node name="Collision" type="StaticBody2D" parent="." unique_id=1232538424]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Collision" unique_id=646951521]
+position = Vector2(69.25, 71.75)
+shape = SubResource("RectangleShape2D_cathedral_block")
+
+[node name="DoorArea" type="Area2D" parent="." unique_id=273020301]
+script = ExtResource("2_door_script")
+interaction_name = "Cathedral Door"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorArea" unique_id=309331134]
+position = Vector2(68.75, 152.75)
+shape = SubResource("RectangleShape2D_door_area")
