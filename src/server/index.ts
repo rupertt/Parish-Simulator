@@ -114,6 +114,9 @@ const noCacheHeaders: Record<string, string> = {
 };
 
 function applyNoCacheHeaders(res: express.Response): void {
+  if (res.headersSent) {
+    return;
+  }
   for (const [key, value] of Object.entries(noCacheHeaders)) {
     res.setHeader(key, value);
   }
